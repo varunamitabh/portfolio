@@ -1,6 +1,36 @@
 import { useState } from "react";
 
 // ──────────────────────────────────────────────
+// COLOR PALETTE — "Stormy Morning" (Figma), tuned for contrast
+// Base palette: #384959 #6A89A7 #88BDF2 #BDDDFC
+// ──────────────────────────────────────────────
+const C = {
+  bg: "#EDF2F8", // misty blue-gray page background
+  surface: "#FFFFFF", // cards / nav
+  navBg: "rgba(237,242,248,0.85)",
+  ink: "#26333D", // headings / primary text (darker, bolder)
+  body: "#39495A", // body copy (darker so it doesn't merge with the page)
+  muted: "#617E9B", // meta, dates, captions
+  accent: "#3F6488", // links, company names, emphasis (readable)
+  accentSolid: "#384959", // primary buttons + dark sections
+  tagBg: "#DCEBFB", // light-blue chips (project tech tags)
+  tagText: "#2F5171",
+  chipBg: "#CFE0F5", // colored skill chips (distinct from project tags)
+  chipText: "#274A6E",
+  badgeBg: "#D6E7FA",
+  badgeText: "#2C5480",
+  border: "#D5E0EA", // soft blue-gray borders
+  borderSoft: "#E4EBF2",
+  darkCard: "#33475B", // contact section
+  darkBorder: "#4A6076",
+};
+
+const SECTION_MAX = 1080;
+
+// Apple's system typeface — resolves to SF Pro on Apple devices, with graceful fallbacks.
+const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif';
+
+// ──────────────────────────────────────────────
 // EDIT YOUR INFO HERE
 // ──────────────────────────────────────────────
 const PROFILE = {
@@ -20,7 +50,43 @@ const ABOUT = [
   "I'm most interested in the places where models meet real sensors, real latency budgets, and real hardware: world models, agentic AI systems, and real-time ML. I've also co-authored two IEEE conference papers in biomedical imaging.",
 ];
 
-const PROJECTS = [
+// Two labeled groups so the section stays scannable as it grows.
+const SKILLS = {
+  "Programming & Frameworks": [
+    "Python",
+    "C++",
+    "Go",
+    "TypeScript",
+    "Node.js",
+    "SQL",
+    "PyTorch",
+    "TensorFlow",
+    "Hugging Face",
+    "ROS2",
+    "CUDA",
+    "Docker",
+    "Git",
+    "Linux",
+  ],
+  "ML & Research": [
+    "Machine Learning",
+    "Deep Learning",
+    "Computer Vision",
+    "World Models",
+    "LLMs & Agentic AI",
+    "Generative AI",
+    "Multimodal Learning",
+    "Reinforcement Learning",
+    "NLP",
+    "Representation Learning",
+    "Model Evaluation & Benchmarking",
+    "Multi-Sensor Fusion",
+    "Statistical Modeling",
+    "Numerical Optimization",
+  ],
+};
+
+const FEATURED_PROJECTS = [
   {
     title: "Multimodal World Model for Autonomous Driving",
     description:
@@ -48,6 +114,26 @@ const PROJECTS = [
       "Object detection and classification of handwritten digits across 10,000+ camera-captured images, reaching 96% mean Average Precision and improving document information extraction for OCR pipelines.",
     tags: ["YOLOv5", "PyTorch", "OCR", "Computer Vision"],
     report: "/reports/yolov5-digits.pdf",
+  },
+];
+
+// ──────────────────────────────────────────────
+// SIDE & SCHOOL PROJECTS
+// ──────────────────────────────────────────────
+const SIDE_PROJECTS = [
+  {
+    title: "Pattern Recovery from Noisy Images with Modern Hopfield Networks",
+    description:
+      "Studied Modern Hopfield Networks (log-sum-exp attention energy) as associative memory for recovering MNIST digits under composite noise and structured occlusions (polygon, circle, and spline masks). Analyzed recall against latent dimensionality (100/400/784 nodes, perfect recall at full resolution) and stored-pattern count, and built a cosine-similarity attention retrieval to identify occluded held-out digits — evaluated with Accuracy, MSE, IoU, and SSIM.",
+    tags: ["Modern Hopfield Networks", "PyTorch", "Associative Memory", "MNIST"],
+    report: "/reports/hopfield-pattern-recovery.pdf",
+  },
+  {
+    title: "ML Pipelines for Ship Detection in Satellite Images",
+    description:
+      "Benchmarked classical ML pipelines for detecting ships in PlanetScope satellite imagery (4,000 images, imbalanced 3:1 no-ship/ship). Compared SVM and Random Forest against PCA and Isomap dimensionality reduction with grid-search tuning; the SVM + PCA pipeline generalized best at ~96.9% test accuracy (0.94 F1), then extended it to full scenes with a sliding-window detector.",
+    tags: ["scikit-learn", "SVM", "PCA", "Isomap", "Remote Sensing"],
+    report: "/reports/ship-detection-ml-pipelines.pdf",
   },
 ];
 
@@ -102,33 +188,48 @@ const EDUCATION = [
 const PUBLICATIONS = [
   {
     title: "Deep Learning for Pulmonary Disease Identification",
-    venue: "14th Intl. Conf. on Computing, Communication and Networking Technologies (ICCCNT), IEEE, 2023 — co-author",
+    venue:
+      "14th Intl. Conf. on Computing, Communication and Networking Technologies (ICCCNT), IEEE, 2023 — co-author",
     contribution:
       "Built the CNN architecture and training/evaluation pipeline for 3-class chest X-ray classification (COVID-19 / lung opacity / normal), reaching 85% accuracy.",
     doi: "https://doi.org/10.1109/ICCCNT56998.2023.10307502",
   },
   {
     title: "Biomedical Image Classification using Deep Reinforcement Learning",
-    venue: "4th Intl. Conf. on Advances in Electrical, Computing, Communication and Sustainable Technologies (ICAECT), IEEE, 2024 — co-author",
+    venue:
+      "4th Intl. Conf. on Advances in Electrical, Computing, Communication and Sustainable Technologies (ICAECT), IEEE, 2024 — co-author",
     contribution:
       "Built the deep-learning (CNN) and deep-RL (DQN) components for a benchmark comparing CNN, Fuzzy-CNN, and Deep-RL approaches to chest X-ray classification.",
     doi: "https://doi.org/10.1109/ICAECT60202.2024.10468733",
   },
 ];
 
-const SKILLS = [
-  "Python",
-  "PyTorch",
-  "C++",
-  "TensorFlow",
-  "ROS2",
-  "CUDA",
-  "Docker",
-  "LLMs & Agentic AI",
-  "Computer Vision",
-  "Multimodal Learning",
-  "Reinforcement Learning",
-  "SQL",
+// ──────────────────────────────────────────────
+// LIFE OUTSIDE TECH — PLACEHOLDERS: swap the emoji, title, and text for
+// your own. Add or remove cards freely; the grid reflows automatically.
+// ──────────────────────────────────────────────
+const INTERESTS = [
+  {
+    emoji: "⚽",
+    title: "Sports",
+    text: "I follow football(not American), rather religiously and have been an avid Barca fan for a long time (I will not be talking about the '26 WC finals). I've also been following Ferrari in F1 for some time now and still wait for when Charles Leclerc finally gets his hands on the WDC. Growing up, I've also dabbled in tennis, badminton and golf(!), and kinda sorta got into running to supplement my foodie habits, but I do still follow tennis(I'm waiting for Carlos Alcaraz to make his comeback and return giving competition to Sinner). Overall, I enjoy watching, playing and following sports I'd say, and I'm always up for a good game or a discussion about sports, so feel free to hmu!",
+  },
+  {
+    emoji: "🎧",
+    title: "Music",
+    text: "I don't think I can correctly classify the music I listen to, but I do enjoy a good mix of genres. From the classics like The Beatles and Queen to modern artists like The Strokes and Post Malone, I appreciate a wide range of musical styles and I think this link does justice to what I listen to: ",
+    link: { href: "https://www.last.fm/user/aightF", label: "last.fm" },
+  },
+  {
+    emoji: "🎮",
+    title: "Gaming",
+    text: "I've been out of gaming for a while now and want to get that dream PC setup going, but my sports obsession did bleed into playing every FIFA game version from '05 to '26. I also have sub par aiming skills at FPS games like CS2 and Valorant(I didn't really understand the mechanics of R6S sadly). But, I do like my story modes and am always on the lookout for niche Indie games, so if you have any recommendations, I'm all ears!",
+  },
+  {
+    emoji: "✈️",
+    title: "Travel",
+    text: "I love to travel and explore new places, whether it's a weekend getaway(open to suggestions near SF!) or a longer trip abroad. I enjoy immersing myself in different cultures, trying new foods, and experiencing the local way of life. My last trip was to Vietnam in '25 and it was amazing in terms of the food and culture(my coffee addiction was re-awakened haha). I'm planning for my next trip to be in Europe and explore a few countires there, but I'm always looking for new destinations to add to my travel bucket list.",
+  },
 ];
 
 // ──────────────────────────────────────────────
@@ -149,7 +250,7 @@ function LinkButton({ href, children, variant = "default" }) {
     alignItems: "center",
     gap: "5px",
     fontSize: "13px",
-    fontFamily: "'Space Grotesk', system-ui, sans-serif",
+    fontFamily: FONT,
     fontWeight: 500,
     textDecoration: "none",
     padding: "6px 12px",
@@ -159,8 +260,8 @@ function LinkButton({ href, children, variant = "default" }) {
   };
   const styles =
     variant === "accent"
-      ? { ...base, color: "#fff", backgroundColor: "#2B4ACB", borderColor: "#2B4ACB" }
-      : { ...base, color: "#374151", backgroundColor: "transparent", borderColor: "#D1D5DB" };
+      ? { ...base, color: "#fff", backgroundColor: C.accentSolid, borderColor: C.accentSolid }
+      : { ...base, color: C.accent, backgroundColor: "transparent", borderColor: C.border };
 
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" style={styles}>
@@ -169,26 +270,26 @@ function LinkButton({ href, children, variant = "default" }) {
   );
 }
 
-const NAV_SECTIONS = ["Projects", "Experience", "Publications", "Contact"];
+const NAV_SECTIONS = ["Projects", "Experience", "Publications", "Interests", "Contact"];
 
 function NavBar() {
   const [open, setOpen] = useState(false);
   return (
     <nav style={{
       position: "sticky", top: 0, zIndex: 50,
-      backgroundColor: "rgba(250,250,248,0.85)", backdropFilter: "blur(12px)",
-      borderBottom: "1px solid #E5E7EB", padding: "0 24px",
+      backgroundColor: C.navBg, backdropFilter: "blur(12px)",
+      borderBottom: `1px solid ${C.border}`, padding: "0 24px",
     }}>
       <div style={{
-        maxWidth: 860, margin: "0 auto",
+        maxWidth: SECTION_MAX, margin: "0 auto",
         display: "flex", justifyContent: "space-between", alignItems: "center",
         height: 56,
       }}>
         <a href="#top" style={{
-          fontFamily: "'Space Grotesk', system-ui", fontWeight: 700, fontSize: 18,
-          color: "#111", textDecoration: "none", letterSpacing: "-0.02em",
+          fontFamily: FONT, fontWeight: 700, fontSize: 18,
+          color: C.ink, textDecoration: "none", letterSpacing: "-0.02em",
         }}>
-          {PROFILE.name.split(" ")[0].toLowerCase()}<span style={{ color: "#2B4ACB" }}>.</span>
+          {PROFILE.name.split(" ")[0].toLowerCase()}<span style={{ color: C.accent }}>.</span>
         </a>
 
         {/* Desktop nav */}
@@ -196,21 +297,21 @@ function NavBar() {
              className="nav-links-desktop">
           {NAV_SECTIONS.map((s) => (
             <a key={s} href={`#${s.toLowerCase()}`} style={{
-              fontSize: 14, color: "#6B7280", textDecoration: "none",
-              fontFamily: "'Space Grotesk', system-ui", fontWeight: 500,
+              fontSize: 14, color: C.muted, textDecoration: "none",
+              fontFamily: FONT, fontWeight: 500,
             }}>{s}</a>
           ))}
           <a href={PROFILE.links.resume} target="_blank" rel="noopener noreferrer" style={{
-            fontSize: 13, color: "#fff", backgroundColor: "#2B4ACB",
+            fontSize: 13, color: "#fff", backgroundColor: C.accentSolid,
             padding: "6px 14px", borderRadius: 6, textDecoration: "none",
-            fontFamily: "'Space Grotesk', system-ui", fontWeight: 600,
+            fontFamily: FONT, fontWeight: 600,
           }}>Resume ↓</a>
         </div>
 
         {/* Mobile hamburger */}
         <button onClick={() => setOpen(!open)} className="nav-hamburger" style={{
           display: "none", background: "none", border: "none", cursor: "pointer",
-          padding: 4, color: "#374151",
+          padding: 4, color: C.ink,
         }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             {open ? <><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></> :
@@ -223,17 +324,17 @@ function NavBar() {
       {open && (
         <div className="nav-mobile-menu" style={{
           display: "none", flexDirection: "column", gap: 16,
-          padding: "16px 0 20px", borderTop: "1px solid #E5E7EB",
+          padding: "16px 0 20px", borderTop: `1px solid ${C.border}`,
         }}>
           {NAV_SECTIONS.map((s) => (
             <a key={s} href={`#${s.toLowerCase()}`} onClick={() => setOpen(false)} style={{
-              fontSize: 15, color: "#374151", textDecoration: "none",
-              fontFamily: "'Space Grotesk', system-ui", fontWeight: 500,
+              fontSize: 15, color: C.ink, textDecoration: "none",
+              fontFamily: FONT, fontWeight: 500,
             }}>{s}</a>
           ))}
           <a href={PROFILE.links.resume} target="_blank" rel="noopener noreferrer" style={{
-            fontSize: 14, color: "#2B4ACB", textDecoration: "none",
-            fontFamily: "'Space Grotesk', system-ui", fontWeight: 600,
+            fontSize: 14, color: C.accent, textDecoration: "none",
+            fontFamily: FONT, fontWeight: 600,
           }}>Download Resume ↓</a>
         </div>
       )}
@@ -241,36 +342,62 @@ function NavBar() {
   );
 }
 
+// Shared style for justified body copy.
+const bodyProse = {
+  fontFamily: FONT,
+  textAlign: "justify",
+  hyphens: "auto",
+  WebkitHyphens: "auto",
+};
+
+function SectionHeading({ children, sub }) {
+  return (
+    <>
+      <h2 style={{
+        fontFamily: FONT, fontWeight: 700,
+        fontSize: 25, color: C.ink, letterSpacing: "-0.02em",
+        margin: sub ? "0 0 8px" : "0 0 28px",
+      }}>{children}</h2>
+      {sub && (
+        <p style={{
+          fontFamily: FONT, fontSize: 14,
+          color: C.muted, margin: "0 0 28px",
+        }}>{sub}</p>
+      )}
+    </>
+  );
+}
+
 function Hero() {
   return (
     <section id="top" style={{
-      maxWidth: 860, margin: "0 auto", padding: "80px 24px 48px",
+      maxWidth: SECTION_MAX, margin: "0 auto", padding: "80px 24px 48px",
     }}>
       <div style={{
         display: "inline-block", fontSize: 12, fontWeight: 600,
-        fontFamily: "'Space Grotesk', system-ui", color: "#2B4ACB",
-        backgroundColor: "#EEF1FB", padding: "4px 10px", borderRadius: 4,
+        fontFamily: FONT, color: C.badgeText,
+        backgroundColor: C.badgeBg, padding: "4px 10px", borderRadius: 4,
         letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 20,
       }}>
         Open to work · Available immediately
       </div>
       <h1 style={{
-        fontFamily: "'Space Grotesk', system-ui", fontWeight: 700,
-        fontSize: "clamp(32px, 5vw, 48px)", lineHeight: 1.1,
-        color: "#111", letterSpacing: "-0.03em", margin: "0 0 12px",
+        fontFamily: FONT, fontWeight: 700,
+        fontSize: "clamp(32px, 5vw, 52px)", lineHeight: 1.1,
+        color: C.ink, letterSpacing: "-0.03em", margin: "0 0 12px",
       }}>
         {PROFILE.name}
       </h1>
       <p style={{
-        fontFamily: "'Space Grotesk', system-ui", fontWeight: 500,
-        fontSize: "clamp(18px, 2.5vw, 22px)", color: "#6B7280",
+        fontFamily: FONT, fontWeight: 500,
+        fontSize: "clamp(18px, 2.5vw, 23px)", color: C.muted,
         margin: "0 0 20px", letterSpacing: "-0.01em",
       }}>
         {PROFILE.title}
       </p>
       <p style={{
-        fontFamily: "'Inter', system-ui, sans-serif", fontSize: 16,
-        lineHeight: 1.65, color: "#4B5563", maxWidth: 620, margin: "0 0 32px",
+        ...bodyProse, fontSize: 16.5,
+        lineHeight: 1.7, color: C.body, maxWidth: 760, margin: "0 0 32px",
       }}>
         {PROFILE.tagline}
       </p>
@@ -286,12 +413,12 @@ function Hero() {
 function About() {
   return (
     <section id="about" style={{
-      maxWidth: 860, margin: "0 auto", padding: "0 24px 48px",
+      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 48px",
     }}>
       {ABOUT.map((para, i) => (
         <p key={i} style={{
-          fontFamily: "'Inter', system-ui", fontSize: 15,
-          lineHeight: 1.7, color: "#4B5563", maxWidth: 680,
+          ...bodyProse, fontSize: 15.5,
+          lineHeight: 1.75, color: C.body, maxWidth: 900,
           margin: i === ABOUT.length - 1 ? 0 : "0 0 14px",
         }}>{para}</p>
       ))}
@@ -302,15 +429,26 @@ function About() {
 function Skills() {
   return (
     <section style={{
-      maxWidth: 860, margin: "0 auto", padding: "0 24px 56px",
+      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 56px",
     }}>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {SKILLS.map((s) => (
-          <span key={s} style={{
-            fontSize: 13, fontFamily: "'Space Grotesk', system-ui",
-            fontWeight: 500, color: "#374151", backgroundColor: "#F3F4F6",
-            padding: "5px 12px", borderRadius: 5,
-          }}>{s}</span>
+      <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+        {Object.entries(SKILLS).map(([group, items]) => (
+          <div key={group}>
+            <p style={{
+              fontFamily: FONT, fontSize: 12,
+              fontWeight: 600, color: C.muted, letterSpacing: "0.06em",
+              textTransform: "uppercase", margin: "0 0 10px",
+            }}>{group}</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {items.map((s) => (
+                <span key={s} style={{
+                  fontSize: 13, fontFamily: FONT,
+                  fontWeight: 500, color: C.chipText, backgroundColor: C.chipBg,
+                  padding: "5px 12px", borderRadius: 5,
+                }}>{s}</span>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </section>
@@ -319,32 +457,31 @@ function Skills() {
 
 function ProjectCard({ project }) {
   return (
-    <div style={{
-      backgroundColor: "#fff", border: "1px solid #E5E7EB",
+    <div className="card" style={{
+      backgroundColor: C.surface, border: `1px solid ${C.border}`,
       borderRadius: 10, padding: 24,
       display: "flex", flexDirection: "column", gap: 14,
-      transition: "box-shadow 0.15s ease",
     }}>
       <h3 style={{
-        fontFamily: "'Space Grotesk', system-ui", fontWeight: 600,
-        fontSize: 17, color: "#111", margin: 0, letterSpacing: "-0.01em",
+        fontFamily: FONT, fontWeight: 600,
+        fontSize: 17, color: C.ink, margin: 0, letterSpacing: "-0.01em",
       }}>{project.title}</h3>
       <p style={{
-        fontFamily: "'Inter', system-ui", fontSize: 14,
-        lineHeight: 1.6, color: "#6B7280", margin: 0, flex: 1,
+        ...bodyProse, fontSize: 14,
+        lineHeight: 1.65, color: C.body, margin: 0, flex: 1,
       }}>{project.description}</p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {project.tags.map((t) => (
-          <span key={t} style={{
-            fontSize: 11, fontFamily: "'Space Grotesk', system-ui",
-            fontWeight: 600, color: "#2B4ACB", backgroundColor: "#EEF1FB",
+        {project.tags.map((t, i) => (
+          <span key={`${t}-${i}`} style={{
+            fontSize: 11, fontFamily: FONT,
+            fontWeight: 600, color: C.tagText, backgroundColor: C.tagBg,
             padding: "3px 8px", borderRadius: 4, letterSpacing: "0.02em",
           }}>{t}</span>
         ))}
       </div>
       <div style={{
         display: "flex", gap: 8, flexWrap: "wrap",
-        paddingTop: 6, borderTop: "1px solid #F3F4F6",
+        paddingTop: 6, borderTop: `1px solid ${C.borderSoft}`,
       }}>
         {project.github && <LinkButton href={project.github}>Code</LinkButton>}
         {project.live && <LinkButton href={project.live}>Live Demo</LinkButton>}
@@ -354,111 +491,103 @@ function ProjectCard({ project }) {
   );
 }
 
+function ProjectGrid({ projects }) {
+  return (
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))",
+      gap: 18,
+    }}>
+      {projects.map((p) => <ProjectCard key={p.title} project={p} />)}
+    </div>
+  );
+}
+
+function SubLabel({ children, style }) {
+  return (
+    <p style={{
+      fontFamily: FONT, fontSize: 13,
+      fontWeight: 600, color: C.muted, letterSpacing: "0.05em",
+      textTransform: "uppercase", margin: "0 0 16px", ...style,
+    }}>{children}</p>
+  );
+}
+
 function Projects() {
   return (
     <section id="projects" style={{
-      maxWidth: 860, margin: "0 auto", padding: "0 24px 64px",
+      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 64px",
     }}>
-      <h2 style={{
-        fontFamily: "'Space Grotesk', system-ui", fontWeight: 700,
-        fontSize: 24, color: "#111", letterSpacing: "-0.02em",
-        margin: "0 0 8px",
-      }}>Projects</h2>
-      <p style={{
-        fontFamily: "'Inter', system-ui", fontSize: 14,
-        color: "#9CA3AF", margin: "0 0 28px",
-      }}>Selected work — click through for detailed PDF reports.</p>
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 340px), 1fr))",
-        gap: 18,
-      }}>
-        {PROJECTS.map((p) => <ProjectCard key={p.title} project={p} />)}
-      </div>
+      <SectionHeading sub="Selected work — click through for detailed PDF reports.">
+        Projects
+      </SectionHeading>
+
+      <SubLabel>Research & Featured Work</SubLabel>
+      <ProjectGrid projects={FEATURED_PROJECTS} />
+
+      <SubLabel style={{ margin: "36px 0 16px" }}>Side Projects</SubLabel>
+      <ProjectGrid projects={SIDE_PROJECTS} />
     </section>
   );
 }
 
+function TimelineList({ items }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+      {items.map((item, i) => (
+        <div key={i} className="timeline-row" style={{
+          display: "flex", gap: 24, padding: "24px 0",
+          borderTop: `1px solid ${C.borderSoft}`,
+        }}>
+          <div style={{
+            fontFamily: FONT, fontSize: 13,
+            fontWeight: 500, color: C.muted, width: 150, flexShrink: 0,
+            paddingTop: 2,
+          }}>{item.period}</div>
+          <div style={{ minWidth: 0 }}>
+            <h3 style={{
+              fontFamily: FONT, fontWeight: 600,
+              fontSize: 16, color: C.ink, margin: "0 0 2px",
+            }}>{item.title}</h3>
+            <p style={{
+              fontFamily: FONT, fontSize: 14,
+              fontWeight: 500, color: C.accent, margin: "0 0 8px",
+            }}>{item.subtitle}</p>
+            <p style={{
+              ...bodyProse, fontSize: 14,
+              lineHeight: 1.65, color: C.body, margin: 0,
+            }}>{item.detail}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Experience() {
+  const items = EXPERIENCE.map((e) => ({
+    period: e.period, title: e.role, subtitle: e.company, detail: e.description,
+  }));
   return (
     <section id="experience" style={{
-      maxWidth: 860, margin: "0 auto", padding: "0 24px 64px",
+      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 64px",
     }}>
-      <h2 style={{
-        fontFamily: "'Space Grotesk', system-ui", fontWeight: 700,
-        fontSize: 24, color: "#111", letterSpacing: "-0.02em",
-        margin: "0 0 28px",
-      }}>Experience</h2>
-      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-        {EXPERIENCE.map((exp, i) => (
-          <div key={i} className="timeline-row" style={{
-            display: "flex", gap: 20, padding: "24px 0",
-            borderTop: "1px solid #F3F4F6",
-          }}>
-            <div style={{
-              fontFamily: "'Space Grotesk', system-ui", fontSize: 13,
-              fontWeight: 500, color: "#9CA3AF", minWidth: 110,
-              paddingTop: 2, whiteSpace: "nowrap",
-            }}>{exp.period}</div>
-            <div>
-              <h3 style={{
-                fontFamily: "'Space Grotesk', system-ui", fontWeight: 600,
-                fontSize: 16, color: "#111", margin: "0 0 2px",
-              }}>{exp.role}</h3>
-              <p style={{
-                fontFamily: "'Space Grotesk', system-ui", fontSize: 14,
-                fontWeight: 500, color: "#2B4ACB", margin: "0 0 8px",
-              }}>{exp.company}</p>
-              <p style={{
-                fontFamily: "'Inter', system-ui", fontSize: 14,
-                lineHeight: 1.6, color: "#6B7280", margin: 0,
-              }}>{exp.description}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+      <SectionHeading>Experience</SectionHeading>
+      <TimelineList items={items} />
     </section>
   );
 }
 
 function Education() {
+  const items = EDUCATION.map((e) => ({
+    period: e.period, title: e.degree, subtitle: e.school, detail: e.detail,
+  }));
   return (
     <section id="education" style={{
-      maxWidth: 860, margin: "0 auto", padding: "0 24px 64px",
+      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 64px",
     }}>
-      <h2 style={{
-        fontFamily: "'Space Grotesk', system-ui", fontWeight: 700,
-        fontSize: 24, color: "#111", letterSpacing: "-0.02em",
-        margin: "0 0 28px",
-      }}>Education</h2>
-      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-        {EDUCATION.map((edu, i) => (
-          <div key={i} className="timeline-row" style={{
-            display: "flex", gap: 20, padding: "24px 0",
-            borderTop: "1px solid #F3F4F6",
-          }}>
-            <div style={{
-              fontFamily: "'Space Grotesk', system-ui", fontSize: 13,
-              fontWeight: 500, color: "#9CA3AF", minWidth: 110,
-              paddingTop: 2, whiteSpace: "nowrap",
-            }}>{edu.period}</div>
-            <div>
-              <h3 style={{
-                fontFamily: "'Space Grotesk', system-ui", fontWeight: 600,
-                fontSize: 16, color: "#111", margin: "0 0 2px",
-              }}>{edu.degree}</h3>
-              <p style={{
-                fontFamily: "'Space Grotesk', system-ui", fontSize: 14,
-                fontWeight: 500, color: "#2B4ACB", margin: "0 0 8px",
-              }}>{edu.school}</p>
-              <p style={{
-                fontFamily: "'Inter', system-ui", fontSize: 14,
-                lineHeight: 1.6, color: "#6B7280", margin: 0,
-              }}>{edu.detail}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+      <SectionHeading>Education</SectionHeading>
+      <TimelineList items={items} />
     </section>
   );
 }
@@ -466,34 +595,74 @@ function Education() {
 function Publications() {
   return (
     <section id="publications" style={{
-      maxWidth: 860, margin: "0 auto", padding: "0 24px 64px",
+      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 64px",
     }}>
-      <h2 style={{
-        fontFamily: "'Space Grotesk', system-ui", fontWeight: 700,
-        fontSize: 24, color: "#111", letterSpacing: "-0.02em",
-        margin: "0 0 28px",
-      }}>Publications</h2>
+      <SectionHeading>Publications</SectionHeading>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {PUBLICATIONS.map((pub) => (
-          <div key={pub.title} style={{
-            backgroundColor: "#fff", border: "1px solid #E5E7EB",
+          <div key={pub.title} className="card" style={{
+            backgroundColor: C.surface, border: `1px solid ${C.border}`,
             borderRadius: 10, padding: 24,
             display: "flex", flexDirection: "column", gap: 10,
           }}>
             <h3 style={{
-              fontFamily: "'Space Grotesk', system-ui", fontWeight: 600,
-              fontSize: 16, color: "#111", margin: 0, letterSpacing: "-0.01em",
+              fontFamily: FONT, fontWeight: 600,
+              fontSize: 16, color: C.ink, margin: 0, letterSpacing: "-0.01em",
             }}>{pub.title}</h3>
             <p style={{
-              fontFamily: "'Inter', system-ui", fontSize: 13,
-              color: "#9CA3AF", margin: 0, lineHeight: 1.5,
+              fontFamily: FONT, fontSize: 13,
+              color: C.muted, margin: 0, lineHeight: 1.5,
             }}>{pub.venue}</p>
             <p style={{
-              fontFamily: "'Inter', system-ui", fontSize: 14,
-              lineHeight: 1.6, color: "#6B7280", margin: 0,
+              ...bodyProse, fontSize: 14,
+              lineHeight: 1.65, color: C.body, margin: 0,
             }}>{pub.contribution}</p>
             <div>
               <LinkButton href={pub.doi}>View paper (DOI)</LinkButton>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Interests() {
+  return (
+    <section id="interests" style={{
+      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 64px",
+    }}>
+      <SectionHeading sub="What I'm upto when I'm not coding, reading papers, or writing reports.">
+        Life Outside Tech
+      </SectionHeading>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {INTERESTS.map((item) => (
+          <div key={item.title} className="card interest-row" style={{
+            backgroundColor: C.surface, border: `1px solid ${C.border}`,
+            borderRadius: 10, padding: "22px 24px",
+            display: "flex", flexDirection: "row", alignItems: "flex-start", gap: 20,
+          }}>
+            <span style={{
+              fontSize: 32, lineHeight: 1, flexShrink: 0,
+              width: 44, textAlign: "center",
+            }}>{item.emoji}</span>
+            <div>
+              <h3 style={{
+                fontFamily: FONT, fontWeight: 600,
+                fontSize: 16, color: C.ink, margin: "0 0 6px",
+              }}>{item.title}</h3>
+              <p style={{
+                fontFamily: FONT, fontSize: 14,
+                lineHeight: 1.65, color: C.body, margin: 0,
+              }}>
+                {item.text}
+                {item.link && (
+                  <a href={item.link.href} target="_blank" rel="noopener noreferrer"
+                    style={{ color: C.accent, fontWeight: 600, textDecoration: "none" }}>
+                    {item.link.label}
+                  </a>
+                )}
+              </p>
             </div>
           </div>
         ))}
@@ -526,13 +695,13 @@ function ContactForm() {
 
   const inputStyle = {
     width: "100%",
-    backgroundColor: "#1F2937",
-    border: "1px solid #374151",
+    backgroundColor: "#2B3D4F",
+    border: `1px solid ${C.darkBorder}`,
     borderRadius: 7,
     padding: "10px 14px",
-    color: "#F9FAFB",
+    color: "#EAF1F8",
     fontSize: 14,
-    fontFamily: "'Inter', system-ui, sans-serif",
+    fontFamily: FONT,
     outline: "none",
   };
 
@@ -540,8 +709,8 @@ function ContactForm() {
     display: "block",
     fontSize: 13,
     fontWeight: 500,
-    fontFamily: "'Space Grotesk', system-ui",
-    color: "#9CA3AF",
+    fontFamily: FONT,
+    color: "#A9C0D6",
     marginBottom: 6,
     textAlign: "left",
   };
@@ -549,7 +718,7 @@ function ContactForm() {
   if (status === "sent") {
     return (
       <p style={{
-        fontFamily: "'Inter', system-ui", fontSize: 15, color: "#A7F3D0",
+        fontFamily: FONT, fontSize: 15, color: "#BDDDFC",
         margin: "0 0 8px", lineHeight: 1.6,
       }}>
         Thanks — your message is on its way. I'll get back to you soon.
@@ -584,7 +753,7 @@ function ContactForm() {
       </div>
       {status === "error" && (
         <p style={{
-          fontFamily: "'Inter', system-ui", fontSize: 13, color: "#FCA5A5",
+          fontFamily: FONT, fontSize: 13, color: "#F5B7B7",
           margin: "0 0 12px",
         }}>
           Something went wrong — please email me directly instead.
@@ -592,8 +761,8 @@ function ContactForm() {
       )}
       <button type="submit" disabled={status === "sending"} style={{
         display: "inline-flex", alignItems: "center", gap: 6,
-        fontSize: 14, fontFamily: "'Space Grotesk', system-ui", fontWeight: 600,
-        color: "#111", backgroundColor: "#fff", padding: "10px 24px",
+        fontSize: 14, fontFamily: FONT, fontWeight: 600,
+        color: C.ink, backgroundColor: "#fff", padding: "10px 24px",
         borderRadius: 7, border: "none", cursor: "pointer",
         opacity: status === "sending" ? 0.7 : 1,
       }}>
@@ -606,39 +775,39 @@ function ContactForm() {
 function Contact() {
   return (
     <section id="contact" style={{
-      maxWidth: 860, margin: "0 auto", padding: "0 24px 80px",
+      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 80px",
     }}>
       <div style={{
-        backgroundColor: "#111", borderRadius: 12, padding: "48px 32px",
+        backgroundColor: C.darkCard, borderRadius: 12, padding: "48px 32px",
         textAlign: "center",
       }}>
         <h2 style={{
-          fontFamily: "'Space Grotesk', system-ui", fontWeight: 700,
-          fontSize: 24, color: "#fff", letterSpacing: "-0.02em",
+          fontFamily: FONT, fontWeight: 700,
+          fontSize: 25, color: "#fff", letterSpacing: "-0.02em",
           margin: "0 0 10px",
         }}>Let's work together</h2>
         <p style={{
-          fontFamily: "'Inter', system-ui", fontSize: 15,
-          color: "#9CA3AF", margin: "0 0 28px", lineHeight: 1.6,
+          fontFamily: FONT, fontSize: 15,
+          color: "#C2D2E2", margin: "0 0 28px", lineHeight: 1.6,
         }}>
           I'm actively looking for my next role. Drop a message below, or reach me directly by email or LinkedIn.
         </p>
         <ContactForm />
         <div style={{
           display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap",
-          marginTop: 28, paddingTop: 24, borderTop: "1px solid #1F2937",
+          marginTop: 28, paddingTop: 24, borderTop: `1px solid ${C.darkBorder}`,
         }}>
           <a href={`mailto:${PROFILE.email}`} style={{
             display: "inline-flex", alignItems: "center", gap: 6,
-            fontSize: 14, fontFamily: "'Space Grotesk', system-ui", fontWeight: 600,
-            color: "#111", backgroundColor: "#fff", padding: "10px 20px",
+            fontSize: 14, fontFamily: FONT, fontWeight: 600,
+            color: C.ink, backgroundColor: "#fff", padding: "10px 20px",
             borderRadius: 7, textDecoration: "none",
           }}>{PROFILE.email}</a>
           <a href={PROFILE.links.linkedin} target="_blank" rel="noopener noreferrer" style={{
             display: "inline-flex", alignItems: "center", gap: 6,
-            fontSize: 14, fontFamily: "'Space Grotesk', system-ui", fontWeight: 500,
-            color: "#D1D5DB", backgroundColor: "transparent",
-            border: "1px solid #374151", padding: "10px 20px",
+            fontSize: 14, fontFamily: FONT, fontWeight: 500,
+            color: "#D3E0EC", backgroundColor: "transparent",
+            border: `1px solid ${C.darkBorder}`, padding: "10px 20px",
             borderRadius: 7, textDecoration: "none",
           }}>LinkedIn <ArrowIcon /></a>
         </div>
@@ -650,12 +819,12 @@ function Contact() {
 function Footer() {
   return (
     <footer style={{
-      maxWidth: 860, margin: "0 auto", padding: "0 24px 40px",
+      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 40px",
       textAlign: "center",
     }}>
       <p style={{
-        fontFamily: "'Space Grotesk', system-ui", fontSize: 12,
-        color: "#D1D5DB",
+        fontFamily: FONT, fontSize: 12,
+        color: C.muted,
       }}>
         Varun Amitabh · {new Date().getFullYear()}
       </p>
@@ -671,13 +840,29 @@ export default function Portfolio() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap');
-
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-        body { background: #FAFAF8; -webkit-font-smoothing: antialiased; }
+        body {
+          background: ${C.bg};
+          font-family: ${FONT};
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
 
-        a:hover { opacity: 0.85; }
+        a { transition: opacity 0.15s ease; }
+        a:hover { opacity: 0.82; }
+
+        /* Apple-style floating cards: rest with a soft shadow, lift on hover */
+        .card {
+          box-shadow: 0 1px 3px rgba(38, 51, 61, 0.05);
+          transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                      box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+          will-change: transform;
+        }
+        .card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 14px 30px rgba(38, 51, 61, 0.13);
+        }
 
         /* Responsive rules */
         @media (max-width: 640px) {
@@ -685,6 +870,8 @@ export default function Portfolio() {
           .nav-hamburger { display: block !important; }
           .nav-mobile-menu { display: flex !important; }
           .timeline-row { flex-direction: column; gap: 6px !important; }
+          /* left-align justified prose on narrow screens to avoid big word gaps */
+          .timeline-row p, #about p, #top p, #projects p, #publications p { text-align: left !important; }
         }
         @media (min-width: 641px) {
           .nav-links-desktop { display: flex !important; }
@@ -701,6 +888,7 @@ export default function Portfolio() {
         <Experience />
         <Education />
         <Publications />
+        <Interests />
         <Contact />
       </main>
       <Footer />
