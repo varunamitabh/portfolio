@@ -35,4 +35,4 @@ Netlify — locally the submit will hit the error state.
    and point it at username@your_domain.com. (Netlify also stores every
    submission in the Forms tab regardless.)
 4. Optional: change the site name (Site configuration → Site details) to get a
-   cleaner URL like `varun-amitabh.netlify.app`, or attach a custom domain.
+   cleaner URL or attach a custom domain.
