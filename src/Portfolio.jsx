@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./styles.css";
 
 // ──────────────────────────────────────────────
@@ -14,16 +14,16 @@ const PROFILE = {
     resume: "/resume.pdf", // put your resume PDF in /public
   },
   // Small monospace labels at the top of the hero.
-  labels: ["ML Engineer", "MS ECE · University of Florida", "Open to relocation"],
+  labels: ["ML Research Engineer", "MS ECE · University of Florida", "Open to relocation"],
   // Big hero statement: the first part is white, the second part grey.
-  headline: ["I build machine learning", "that has to work outside the simulator."],
+  headline: ["I build ML systems", "that work in the real world."],
   // "Now" line in the strip at the bottom of the hero.
-  now: { lead: "Now:", text: "taking a driving world model from simulation to real-world data at UF's TEA Lab" },
+  now: { lead: "Now:", text: "extending a world model to real-world data and researching on uq methods + stronger evals at UF's TEA Lab" },
 };
 
 // Hero intro. Wrap a phrase in **double asterisks** to make it white.
 const INTRO =
-  "I finished my MS in Electrical & Computer Engineering at the University of Florida in 2026. The work I like best is where models meet **real sensors and real hardware**. Right now that's a world model that predicts what a car's cameras and LiDAR will see next. I'm looking for an ML engineering role and can start right away.";
+  "I finished my MS in Electrical & Computer Engineering at the University of Florida in 2026. I'm specially interested in problems where a model has to work with **real sensors, hardware and a latency budget**. Right now that's a world model which predicts what the future frames from a car would like based on the actions it takes.";
 
 // Each project: `hook` is the bold first sentence, `body` follows it in grey.
 // `stat` is optional: a headline number shown under the text.
@@ -32,9 +32,8 @@ const FEATURED_PROJECTS = [
     area: "Autonomous driving",
     status: "Ongoing research",
     title: "Multimodal world model for autonomous driving",
-    hook: "Getting a world model trained in simulation to predict real camera and LiDAR data.",
-    body: "MUVO predicts what a car's camera and LiDAR will see next, given how the car moves. It was built and tested in CARLA. At UF's TEA Lab I'm moving it onto real nuScenes driving data: I reworked parts of the architecture, added spatial and KL-divergence loss terms, and rebuilt the data pipeline so the model is conditioned on real CAN-bus telemetry, aligned scene by scene.",
-    stat: { value: "CARLA → nuScenes", label: "Simulation to real-world data" },
+    hook: "MUVO learned to forecast camera frames and LiDAR scans inside a driving simulator. I'm getting it to do the same on real roads.",
+    body: "The original model was trained in CARLA and conditioned on the car's own actions. At UF's TEA Lab I'm moving it onto nuScenes, which meant reworking parts of the architecture, adding spatial and KL-divergence loss terms, and rebuilding the data pipeline so the model reads real CAN-bus telemetry lined up with each scene.",
     tags: ["PyTorch", "World Models", "nuScenes", "LiDAR", "Sim-to-Real"],
     report: "/reports/world-model.pdf",
   },
@@ -42,8 +41,8 @@ const FEATURED_PROJECTS = [
     area: "Agentic AI",
     status: "Prototype",
     title: "Agent Skills delivery over MCP",
-    hook: "A working answer to how agents should load skills over MCP, built before the protocol had one.",
-    body: "Agent Skills are folders of instructions and scripts that an LLM agent pulls in when a task needs them. When I started, there was no agreed way to serve them through MCP. I built the whole path end to end: an MCP server exposes each skill as a resource in the open SKILL.md format, attached scripts included, and a manifest with content digests lets the agent discover what's available. The design lines up with the direction the MCP working group was converging on.",
+    hook: "When I started this, there was no agreed way to hand Agent Skills to an agent over MCP, so I built one.",
+    body: "Agent Skills are folders of instructions and scripts that an LLM agent loads when a task calls for them. My prototype runs an MCP server that exposes each skill as a resource in the open SKILL.md format, scripts included, and publishes a manifest with content digests so the agent can see which skills exist. The design ended up close to what the MCP working group was converging on.",
     tags: ["MCP", "Agentic AI", "Python", "Go", "TypeScript"],
   },
   {
@@ -51,7 +50,7 @@ const FEATURED_PROJECTS = [
     status: "Research project",
     title: "Through-plane super-resolution on prostate MRI",
     hook: "Testing whether diffusion models can fill in the detail MRI loses between slices.",
-    body: "Prostate MRI is usually sharp within each slice but coarse across them. I benchmarked diffusion models against EDSR and ESRGAN for multi-image through-plane super-resolution, ran ablations across the CNN, GAN and diffusion setups, and got better reconstructions as measured by PSNR and SSIM.",
+    body: "Prostate MRI is usually sharp within each slice and much coarser between slices. I compared diffusion models with EDSR (a CNN) and ESRGAN (a GAN) on multi-image through-plane super-resolution, and ran ablations across all three model families. Reconstruction quality improved, measured by PSNR and SSIM.",
     tags: ["Diffusion Models", "PyTorch", "Medical Imaging", "GANs"],
     report: "/reports/mri-super-resolution.pdf",
   },
@@ -60,7 +59,7 @@ const FEATURED_PROJECTS = [
     status: "Project",
     title: "Handwritten digit detection with YOLOv5",
     hook: "Finding and reading handwritten digits in ordinary camera photos.",
-    body: "I trained YOLOv5 to detect and classify handwritten digits across more than 10,000 camera-captured images, as the detection step of a document OCR pipeline.",
+    body: "I trained YOLOv5 to detect and classify handwritten digits in more than 10,000 camera photos. It was the detection step for a document OCR pipeline.",
     stat: { value: "96% mAP", label: "Mean average precision" },
     tags: ["YOLOv5", "PyTorch", "OCR", "Computer Vision"],
     report: "/reports/yolov5-digits.pdf",
@@ -71,15 +70,15 @@ const SIDE_PROJECTS = [
   {
     title: "Recovering occluded images with Modern Hopfield Networks",
     hook: "How much of a damaged image can an associative memory get back?",
-    body: "I stored MNIST digits in a Modern Hopfield Network and tried to recover them from heavy noise and polygon, circle and spline masks. I measured recall against network size (100, 400 and 784 nodes) and the number of stored patterns, then added cosine-similarity retrieval to identify occluded digits the network had never stored. Scored with accuracy, MSE, IoU and SSIM.",
+    body: "I stored MNIST digits in a Modern Hopfield Network, then buried them under noise and polygon, circle and spline masks to see what it could bring back. I tracked recall as the network grew (100, 400 and 784 nodes) and as it stored more patterns. I also added a cosine-similarity retrieval step to identify occluded digits the network had never stored, and scored everything with accuracy, MSE, IoU and SSIM.",
     figure: "Perfect recall at 784 nodes",
     tags: ["Hopfield Networks", "PyTorch", "MNIST"],
     report: "/reports/hopfield-pattern-recovery.pdf",
   },
   {
     title: "Ship detection in satellite images",
-    hook: "Spotting ships in PlanetScope imagery with classical ML.",
-    body: "4,000 images, three without a ship for every one with. I compared SVM and Random Forest pipelines on PCA and Isomap features, tuned with grid search. SVM with PCA generalized best, so I turned it into a sliding-window detector that scans full scenes.",
+    hook: "I kept this one to classical ML.",
+    body: "The dataset had 4,000 PlanetScope images, with three ship-free images for every one with a ship. I compared SVM and Random Forest pipelines on PCA and Isomap features, tuned with grid search. SVM with PCA generalized best, so I turned it into a sliding-window detector that scans full scenes.",
     figure: "96.9% accuracy · 0.94 F1",
     tags: ["scikit-learn", "SVM", "PCA", "Remote Sensing"],
     report: "/reports/ship-detection-ml-pipelines.pdf",
@@ -88,21 +87,21 @@ const SIDE_PROJECTS = [
 
 const EXPERIENCE = [
   {
-    role: "Graduate Research Assistant",
+    role: "ML Research Engineer",
     company: "Trustworthy Engineered Autonomy Lab, University of Florida",
     period: "Jan 2025 – Present",
     description:
       "Developing a multimodal world model that combines LiDAR, vision and vehicle telemetry for spatial reasoning and future prediction in autonomous driving, and migrating it from CARLA simulation to real nuScenes data with new loss terms and rebuilt data pipelines. Also built real-time object detection and tracking in ROS2 and Gazebo, running YOLO on live UAV simulation feeds.",
   },
   {
-    role: "Graduate Research Assistant",
+    role: "Robotics Engineer",
     company: "i-Heal Lab, University of Florida",
     period: "Nov 2025 – Jan 2026",
     description:
       "Hardware and software integration for an indoor healthcare-assistant robot that follows clinicians and brings up patient information on request: drivetrain, sensor mounting and wiring, ROS2 sensor ingestion, and early work on autonomous indoor navigation with floor-plan mapping and path planning.",
   },
   {
-    role: "Research Assistant",
+    role: "Research Engineer",
     company: "Defense Institute of Advanced Technology (DRDO)",
     period: "May 2023 – Jul 2023",
     description:
@@ -267,7 +266,7 @@ function Tags({ tags }) {
   return (
     <span className="stack mono">
       {tags.map((t, i) => (
-        <Fragment key={t}>{i > 0 && " · "}<span className="tag">{t}</span></Fragment>
+        <span key={t} className="tag">{i > 0 && " · "}{t}</span>
       ))}
     </span>
   );
@@ -331,10 +330,10 @@ function Nav({ tone }) {
   );
 }
 
-function Hero() {
+function Hero({ heroRef }) {
   const [white, grey] = PROFILE.headline;
   return (
-    <section id="top" className="hero">
+    <section id="top" className="hero" ref={heroRef}>
       <div className="hero-glow" aria-hidden="true" />
 
       <div className="container hero-top mono" data-enter style={{ "--d": 0 }}>
@@ -624,33 +623,19 @@ function Contact() {
 // ──────────────────────────────────────────────
 
 export default function Portfolio() {
+  const heroRef = useRef(null);
   const [navTone, setNavTone] = useState("dark");
 
-  // The nav uses its dark material while a dark section (hero, contact) sits
-  // under it, and its light material everywhere else. The observer's root is
-  // trimmed to just the nav's strip at the top of the viewport.
+  // Nav switches to its light material once the dark hero is mostly gone.
   useEffect(() => {
-    if (!("IntersectionObserver" in window)) return;
-    const dark = new Set();
-    let io;
-    const watch = () => {
-      io?.disconnect();
-      const navH = 52;
-      io = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((e) => (e.isIntersecting ? dark.add(e.target) : dark.delete(e.target)));
-          setNavTone(dark.size ? "dark" : "light");
-        },
-        { rootMargin: `0px 0px ${navH - window.innerHeight}px 0px`, threshold: 0 }
-      );
-      document.querySelectorAll(".hero, .contact").forEach((el) => io.observe(el));
-    };
-    watch();
-    window.addEventListener("resize", watch);
-    return () => {
-      io?.disconnect();
-      window.removeEventListener("resize", watch);
-    };
+    const hero = heroRef.current;
+    if (!hero || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setNavTone(entry.isIntersecting ? "dark" : "light"),
+      { rootMargin: "-52px 0px 0px 0px", threshold: 0 }
+    );
+    io.observe(hero);
+    return () => io.disconnect();
   }, []);
 
   // Each .reveal block fades up once when it scrolls into view.
@@ -679,7 +664,7 @@ export default function Portfolio() {
     <>
       <Nav tone={navTone} />
       <main>
-        <Hero />
+        <Hero heroRef={heroRef} />
         <Work />
         <Experience />
         <Toolkit />
