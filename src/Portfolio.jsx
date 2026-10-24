@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import HeroCanvas from "./HeroCanvas.jsx";
 import "./styles.css";
 
 // ──────────────────────────────────────────────
@@ -332,9 +333,11 @@ function Nav({ tone }) {
 
 function Hero({ heroRef }) {
   const [white, grey] = PROFILE.headline;
+  const [glReady, setGlReady] = useState(false);
   return (
-    <section id="top" className="hero" ref={heroRef}>
+    <section id="top" className="hero" ref={heroRef} data-gl={glReady ? "on" : "off"}>
       <div className="hero-glow" aria-hidden="true" />
+      <HeroCanvas onReady={setGlReady} />
 
       <div className="container hero-top mono" data-enter style={{ "--d": 0 }}>
         {PROFILE.labels.map((l) => <span key={l}>[ {l} ]</span>)}
