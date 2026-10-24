@@ -1,138 +1,87 @@
-import { useState } from "react";
-
-// ──────────────────────────────────────────────
-// COLOR PALETTE — "Stormy Morning" (Figma), tuned for contrast
-// Base palette: #384959 #6A89A7 #88BDF2 #BDDDFC
-// ──────────────────────────────────────────────
-const C = {
-  bg: "#EDF2F8", // misty blue-gray page background
-  surface: "#FFFFFF", // cards / nav
-  navBg: "rgba(237,242,248,0.85)",
-  ink: "#26333D", // headings / primary text (darker, bolder)
-  body: "#39495A", // body copy (darker so it doesn't merge with the page)
-  muted: "#617E9B", // meta, dates, captions
-  accent: "#3F6488", // links, company names, emphasis (readable)
-  accentSolid: "#384959", // primary buttons + dark sections
-  tagBg: "#DCEBFB", // light-blue chips (project tech tags)
-  tagText: "#2F5171",
-  chipBg: "#CFE0F5", // colored skill chips (distinct from project tags)
-  chipText: "#274A6E",
-  badgeBg: "#D6E7FA",
-  badgeText: "#2C5480",
-  border: "#D5E0EA", // soft blue-gray borders
-  borderSoft: "#E4EBF2",
-  darkCard: "#33475B", // contact section
-  darkBorder: "#4A6076",
-};
-
-const SECTION_MAX = 1080;
-
-// Apple's system typeface — resolves to SF Pro on Apple devices, with graceful fallbacks.
-const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif';
+import { Fragment, useEffect, useRef, useState } from "react";
+import "./styles.css";
 
 // ──────────────────────────────────────────────
 // EDIT YOUR INFO HERE
+// All site content lives in these blocks. Styling lives in styles.css.
 // ──────────────────────────────────────────────
 const PROFILE = {
   name: "Varun Amitabh",
-  title: "ML Engineer & Researcher",
-  tagline:
-    "Recently completed my MS in Electrical & Computer Engineering at the University of Florida — available immediately. I build ML systems end-to-end: multimodal world models for autonomous driving, real-time perception, and agentic AI infrastructure.",
+  role: "ML Engineer",
   email: "varunamitabh123@gmail.com",
   links: {
     linkedin: "https://www.linkedin.com/in/varun-amitabh-3b79a8255",
     resume: "/resume.pdf", // put your resume PDF in /public
   },
+  // Small monospace labels at the top of the hero.
+  labels: ["ML Engineer", "MS ECE · University of Florida", "Open to relocation"],
+  // Big hero statement: the first part is white, the second part grey.
+  headline: ["I build machine learning", "that has to work outside the simulator."],
+  // "Now" line in the strip at the bottom of the hero.
+  now: { lead: "Now:", text: "taking a driving world model from simulation to real-world data at UF's TEA Lab" },
 };
 
-const ABOUT = [
-  "My research spans two labs at the University of Florida. At the Trustworthy Engineered Autonomy Lab I'm extending MUVO — a multimodal world model that predicts future camera and LiDAR conditioned on the ego vehicle's actions — from CARLA simulation to real-world nuScenes data. At the i-Heal Lab I handled hardware/software integration for an indoor healthcare-assistant robot.",
-  "I'm most interested in the places where models meet real sensors, real latency budgets, and real hardware: world models, agentic AI systems, and real-time ML. I've also co-authored two IEEE conference papers in biomedical imaging.",
-];
+// Hero intro. Wrap a phrase in **double asterisks** to make it white.
+const INTRO =
+  "I finished my MS in Electrical & Computer Engineering at the University of Florida in 2026. The work I like best is where models meet **real sensors and real hardware**. Right now that's a world model that predicts what a car's cameras and LiDAR will see next. I'm looking for an ML engineering role and can start right away.";
 
-// Two labeled groups so the section stays scannable as it grows.
-const SKILLS = {
-  "Programming & Frameworks": [
-    "Python",
-    "C++",
-    "Go",
-    "TypeScript",
-    "Node.js",
-    "SQL",
-    "PyTorch",
-    "TensorFlow",
-    "Hugging Face",
-    "ROS2",
-    "CUDA",
-    "Docker",
-    "Git",
-    "Linux",
-  ],
-  "ML & Research": [
-    "Machine Learning",
-    "Deep Learning",
-    "Computer Vision",
-    "World Models",
-    "LLMs & Agentic AI",
-    "Generative AI",
-    "Multimodal Learning",
-    "Reinforcement Learning",
-    "NLP",
-    "Representation Learning",
-    "Model Evaluation & Benchmarking",
-    "Multi-Sensor Fusion",
-    "Statistical Modeling",
-    "Numerical Optimization",
-  ],
-};
-
+// Each project: `hook` is the bold first sentence, `body` follows it in grey.
+// `stat` is optional: a headline number shown under the text.
 const FEATURED_PROJECTS = [
   {
-    title: "Multimodal World Model for Autonomous Driving",
-    description:
-      "Ongoing research at UF's TEA Lab: extending MUVO, an RSSM-style world model that predicts future camera and LiDAR conditioned on ego-vehicle actions, from CARLA simulation to real-world nuScenes data — reworking the architecture, adding spatial and KL-divergence loss terms, and conditioning on real CAN-bus telemetry with per-scene temporal alignment.",
+    area: "Autonomous driving",
+    status: "Ongoing research",
+    title: "Multimodal world model for autonomous driving",
+    hook: "Getting a world model trained in simulation to predict real camera and LiDAR data.",
+    body: "MUVO predicts what a car's camera and LiDAR will see next, given how the car moves. It was built and tested in CARLA. At UF's TEA Lab I'm moving it onto real nuScenes driving data: I reworked parts of the architecture, added spatial and KL-divergence loss terms, and rebuilt the data pipeline so the model is conditioned on real CAN-bus telemetry, aligned scene by scene.",
+    stat: { value: "CARLA → nuScenes", label: "Simulation to real-world data" },
     tags: ["PyTorch", "World Models", "nuScenes", "LiDAR", "Sim-to-Real"],
     report: "/reports/world-model.pdf",
   },
   {
-    title: "Agent Skills Delivery over MCP",
-    description:
-      "End-to-end prototype for delivering Agent Skills to LLM agents through MCP servers, built while skills-over-MCP was still an open, unreleased protocol question. Serves skills as MCP resources in the open SKILL.md format — including attached scripts — with a digest-based manifest for agent-side discovery, in line with the direction the MCP working group was converging on.",
+    area: "Agentic AI",
+    status: "Prototype",
+    title: "Agent Skills delivery over MCP",
+    hook: "A working answer to how agents should load skills over MCP, built before the protocol had one.",
+    body: "Agent Skills are folders of instructions and scripts that an LLM agent pulls in when a task needs them. When I started, there was no agreed way to serve them through MCP. I built the whole path end to end: an MCP server exposes each skill as a resource in the open SKILL.md format, attached scripts included, and a manifest with content digests lets the agent discover what's available. The design lines up with the direction the MCP working group was converging on.",
     tags: ["MCP", "Agentic AI", "Python", "Go", "TypeScript"],
-    report: "/reports/agent-skills-mcp.pdf",
   },
   {
-    title: "Through-Plane Super-Resolution on Prostate MRI",
-    description:
-      "Benchmarked diffusion-based generative models against EDSR-CNN and ESRGAN for multi-image super-resolution on prostate MRI, improving reconstruction quality as measured by PSNR/SSIM, with structured ablation studies across CNN, GAN, and diffusion frameworks.",
+    area: "Medical imaging",
+    status: "Research project",
+    title: "Through-plane super-resolution on prostate MRI",
+    hook: "Testing whether diffusion models can fill in the detail MRI loses between slices.",
+    body: "Prostate MRI is usually sharp within each slice but coarse across them. I benchmarked diffusion models against EDSR and ESRGAN for multi-image through-plane super-resolution, ran ablations across the CNN, GAN and diffusion setups, and got better reconstructions as measured by PSNR and SSIM.",
     tags: ["Diffusion Models", "PyTorch", "Medical Imaging", "GANs"],
     report: "/reports/mri-super-resolution.pdf",
   },
   {
-    title: "Handwritten Digit Detection with YOLOv5",
-    description:
-      "Object detection and classification of handwritten digits across 10,000+ camera-captured images, reaching 96% mean Average Precision and improving document information extraction for OCR pipelines.",
+    area: "Computer vision",
+    status: "Project",
+    title: "Handwritten digit detection with YOLOv5",
+    hook: "Finding and reading handwritten digits in ordinary camera photos.",
+    body: "I trained YOLOv5 to detect and classify handwritten digits across more than 10,000 camera-captured images, as the detection step of a document OCR pipeline.",
+    stat: { value: "96% mAP", label: "Mean average precision" },
     tags: ["YOLOv5", "PyTorch", "OCR", "Computer Vision"],
     report: "/reports/yolov5-digits.pdf",
   },
 ];
 
-// ──────────────────────────────────────────────
-// SIDE & SCHOOL PROJECTS
-// ──────────────────────────────────────────────
 const SIDE_PROJECTS = [
   {
-    title: "Pattern Recovery from Noisy Images with Modern Hopfield Networks",
-    description:
-      "Studied Modern Hopfield Networks (log-sum-exp attention energy) as associative memory for recovering MNIST digits under composite noise and structured occlusions (polygon, circle, and spline masks). Analyzed recall against latent dimensionality (100/400/784 nodes, perfect recall at full resolution) and stored-pattern count, and built a cosine-similarity attention retrieval to identify occluded held-out digits — evaluated with Accuracy, MSE, IoU, and SSIM.",
-    tags: ["Modern Hopfield Networks", "PyTorch", "Associative Memory", "MNIST"],
+    title: "Recovering occluded images with Modern Hopfield Networks",
+    hook: "How much of a damaged image can an associative memory get back?",
+    body: "I stored MNIST digits in a Modern Hopfield Network and tried to recover them from heavy noise and polygon, circle and spline masks. I measured recall against network size (100, 400 and 784 nodes) and the number of stored patterns, then added cosine-similarity retrieval to identify occluded digits the network had never stored. Scored with accuracy, MSE, IoU and SSIM.",
+    figure: "Perfect recall at 784 nodes",
+    tags: ["Hopfield Networks", "PyTorch", "MNIST"],
     report: "/reports/hopfield-pattern-recovery.pdf",
   },
   {
-    title: "ML Pipelines for Ship Detection in Satellite Images",
-    description:
-      "Benchmarked classical ML pipelines for detecting ships in PlanetScope satellite imagery (4,000 images, imbalanced 3:1 no-ship/ship). Compared SVM and Random Forest against PCA and Isomap dimensionality reduction with grid-search tuning; the SVM + PCA pipeline generalized best at ~96.9% test accuracy (0.94 F1), then extended it to full scenes with a sliding-window detector.",
-    tags: ["scikit-learn", "SVM", "PCA", "Isomap", "Remote Sensing"],
+    title: "Ship detection in satellite images",
+    hook: "Spotting ships in PlanetScope imagery with classical ML.",
+    body: "4,000 images, three without a ship for every one with. I compared SVM and Random Forest pipelines on PCA and Isomap features, tuned with grid search. SVM with PCA generalized best, so I turned it into a sliding-window detector that scans full scenes.",
+    figure: "96.9% accuracy · 0.94 F1",
+    tags: ["scikit-learn", "SVM", "PCA", "Remote Sensing"],
     report: "/reports/ship-detection-ml-pipelines.pdf",
   },
 ];
@@ -143,483 +92,378 @@ const EXPERIENCE = [
     company: "Trustworthy Engineered Autonomy Lab, University of Florida",
     period: "Jan 2025 – Present",
     description:
-      "Developing a multimodal world model integrating LiDAR, vision, and vehicle telemetry for spatial reasoning and multimodal future prediction in autonomous driving — migrating it from CARLA simulation to real nuScenes data with new loss terms and rebuilt data pipelines. Also implemented real-time object detection and tracking in ROS2 + Gazebo using YOLO for live inference on UAV simulation feeds.",
+      "Developing a multimodal world model that combines LiDAR, vision and vehicle telemetry for spatial reasoning and future prediction in autonomous driving, and migrating it from CARLA simulation to real nuScenes data with new loss terms and rebuilt data pipelines. Also built real-time object detection and tracking in ROS2 and Gazebo, running YOLO on live UAV simulation feeds.",
   },
   {
     role: "Graduate Research Assistant",
     company: "i-Heal Lab, University of Florida",
     period: "Nov 2025 – Jan 2026",
     description:
-      "Hardware/software integration for an indoor healthcare-assistant robot designed to follow clinicians and surface patient information on request — drivetrain, sensor mounting and wiring, ROS2 sensor ingestion, and work toward autonomous indoor navigation with floor-plan mapping and path planning.",
+      "Hardware and software integration for an indoor healthcare-assistant robot that follows clinicians and brings up patient information on request: drivetrain, sensor mounting and wiring, ROS2 sensor ingestion, and early work on autonomous indoor navigation with floor-plan mapping and path planning.",
   },
   {
     role: "Research Assistant",
     company: "Defense Institute of Advanced Technology (DRDO)",
     period: "May 2023 – Jul 2023",
     description:
-      "Built scalable data-processing pipelines for 100GB+ spectral imaging datasets and reproducible experimentation workflows, applying statistical and signal-processing techniques to improve data quality and downstream classification performance.",
+      "Built data-processing pipelines for 100GB+ spectral imaging datasets along with reproducible experiment workflows, and used statistical and signal-processing techniques to improve data quality and downstream classification.",
   },
   {
-    role: "Chief Technology Officer",
-    company: "Electricals — Wrench Wielders Racing",
+    role: "Chief Technology Officer, Electricals",
+    company: "Wrench Wielders Racing",
     period: "Nov 2022 – Dec 2023",
     description:
-      "Led a 25-member technical team through end-to-end electrical system integration and real-time sensor data fusion for a student racing team. Contributed to winning Best Overall Performer at SUPRA'23.",
+      "Led a 25-person technical team through electrical system integration and real-time sensor data fusion for a student racing car. The team won Best Overall Performer at SUPRA'23.",
+  },
+];
+
+const SKILLS = {
+  Languages: ["Python", "C++", "Go", "TypeScript", "SQL"],
+  "ML & frameworks": ["PyTorch", "TensorFlow", "Hugging Face", "CUDA", "ROS2", "Node.js"],
+  Research: [
+    "World models",
+    "Multimodal learning & sensor fusion",
+    "Computer vision",
+    "LLMs & agentic AI",
+    "Generative models",
+    "Reinforcement learning",
+  ],
+  "Methods & tools": [
+    "Model evaluation & benchmarking",
+    "Representation learning",
+    "Statistical modeling",
+    "Numerical optimization",
+    "Docker, Git, Linux",
+  ],
+};
+
+const PUBLICATIONS = [
+  {
+    title: "Deep Learning for Pulmonary Disease Identification",
+    venue: "IEEE ICCCNT 2023 · Co-author",
+    contribution:
+      "Built the CNN and the training and evaluation pipeline for 3-class chest X-ray classification (COVID-19, lung opacity, normal), reaching 85% accuracy.",
+    doi: "https://doi.org/10.1109/ICCCNT56998.2023.10307502",
+  },
+  {
+    title: "Biomedical Image Classification using Deep Reinforcement Learning",
+    venue: "IEEE ICAECT 2024 · Co-author",
+    contribution:
+      "Built the CNN and deep-RL (DQN) components for a benchmark comparing CNN, Fuzzy-CNN and deep-RL approaches to chest X-ray classification.",
+    doi: "https://doi.org/10.1109/ICAECT60202.2024.10468733",
   },
 ];
 
 const EDUCATION = [
   {
     school: "University of Florida",
-    degree: "M.S. — Electrical & Computer Engineering",
+    degree: "M.S. Electrical & Computer Engineering",
     period: "2024 – 2026",
     detail:
       "Coursework: Machine Learning, Pattern Recognition, NLP, Image Processing & Computer Vision, Information Theory in ML, Deep Learning in Medical Image Analysis.",
   },
   {
     school: "Symbiosis Institute of Technology, Pune",
-    degree: "B.Tech — Electronics & Telecommunications",
+    degree: "B.Tech Electronics & Telecommunications",
     period: "2020 – 2024",
     detail:
       "Coursework: Artificial Intelligence, Machine Learning, Digital Image Processing, Pattern Recognition, Medical Imaging, Computer Networking.",
   },
 ];
 
-const PUBLICATIONS = [
-  {
-    title: "Deep Learning for Pulmonary Disease Identification",
-    venue:
-      "14th Intl. Conf. on Computing, Communication and Networking Technologies (ICCCNT), IEEE, 2023 — co-author",
-    contribution:
-      "Built the CNN architecture and training/evaluation pipeline for 3-class chest X-ray classification (COVID-19 / lung opacity / normal), reaching 85% accuracy.",
-    doi: "https://doi.org/10.1109/ICCCNT56998.2023.10307502",
-  },
-  {
-    title: "Biomedical Image Classification using Deep Reinforcement Learning",
-    venue:
-      "4th Intl. Conf. on Advances in Electrical, Computing, Communication and Sustainable Technologies (ICAECT), IEEE, 2024 — co-author",
-    contribution:
-      "Built the deep-learning (CNN) and deep-RL (DQN) components for a benchmark comparing CNN, Fuzzy-CNN, and Deep-RL approaches to chest X-ray classification.",
-    doi: "https://doi.org/10.1109/ICAECT60202.2024.10468733",
-  },
-];
-
-// ──────────────────────────────────────────────
-// LIFE OUTSIDE TECH — PLACEHOLDERS: swap the emoji, title, and text for
-// your own. Add or remove cards freely; the grid reflows automatically.
-// ──────────────────────────────────────────────
+// Add or remove cards freely; the grid reflows.
 const INTERESTS = [
   {
-    emoji: "⚽",
     title: "Sports",
-    text: "I follow football(not American), rather religiously and have been an avid Barca fan for a long time (I will not be talking about the '26 WC finals). I've also been following Ferrari in F1 for some time now and still wait for when Charles Leclerc finally gets his hands on the WDC. Growing up, I've also dabbled in tennis, badminton and golf(!), and kinda sorta got into running to supplement my foodie habits, but I do still follow tennis(I'm waiting for Carlos Alcaraz to make his comeback and return giving competition to Sinner). Overall, I enjoy watching, playing and following sports I'd say, and I'm always up for a good game or a discussion about sports, so feel free to hmu!",
+    text: "I follow football (not American) rather religiously and have been an avid Barça fan for a long time (I will not be talking about the '26 WC final). I've also been following Ferrari in F1 for a while and I'm still waiting for Charles Leclerc to finally get his hands on the WDC. Growing up I dabbled in tennis, badminton and golf (!), and kinda sorta got into running to keep up with my foodie habits. I still follow tennis too, and I'm waiting for Carlos Alcaraz to come back and give Sinner some competition. Always up for a game or a sports debate, so feel free to hmu!",
   },
   {
-    emoji: "🎧",
     title: "Music",
-    text: "I don't think I can correctly classify the music I listen to, but I do enjoy a good mix of genres. From the classics like The Beatles and Queen to modern artists like The Strokes and Post Malone, I appreciate a wide range of musical styles and I think this link does justice to what I listen to: ",
-    link: { href: "https://www.last.fm/user/aightF", label: "last.fm" },
+    text: "I can't really classify what I listen to, but it's a good mix of genres: from the classics like The Beatles and Queen to The Strokes and Post Malone. This probably does it more justice than I can: ",
+    link: { href: "https://www.last.fm/user/aightF", label: "my last.fm" },
   },
   {
-    emoji: "🎮",
     title: "Gaming",
-    text: "I've been out of gaming for a while now and want to get that dream PC setup going, but my sports obsession did bleed into playing every FIFA game version from '05 to '26. I also have sub par aiming skills at FPS games like CS2 and Valorant(I didn't really understand the mechanics of R6S sadly). But, I do like my story modes and am always on the lookout for niche Indie games, so if you have any recommendations, I'm all ears!",
+    text: "I've been out of gaming for a while and still want to get that dream PC setup going, but my sports obsession did bleed into playing every FIFA from '05 to '26. My aim in CS2 and Valorant is sub-par (and I never quite understood R6S). I do love a good story mode and I'm always on the lookout for niche indie games, so if you have recommendations, I'm all ears!",
   },
   {
-    emoji: "✈️",
     title: "Travel",
-    text: "I love to travel and explore new places, whether it's a weekend getaway(open to suggestions near SF!) or a longer trip abroad. I enjoy immersing myself in different cultures, trying new foods, and experiencing the local way of life. My last trip was to Vietnam in '25 and it was amazing in terms of the food and culture(my coffee addiction was re-awakened haha). I'm planning for my next trip to be in Europe and explore a few countires there, but I'm always looking for new destinations to add to my travel bucket list.",
+    text: "I love exploring new places, whether it's a weekend getaway (open to suggestions near SF!) or a longer trip abroad, mostly for the food, the culture and the local way of life. My last trip was to Vietnam in '25 and the food was amazing (it also re-awakened my coffee addiction). Next on the list is a few countries in Europe.",
   },
 ];
 
+const NAV = [
+  { id: "work", label: "Work" },
+  { id: "experience", label: "Experience" },
+  { id: "publications", label: "Publications" },
+  { id: "outside", label: "Outside work" },
+  { id: "contact", label: "Contact" },
+];
+
 // ──────────────────────────────────────────────
-// COMPONENTS
+// SMALL PIECES
 // ──────────────────────────────────────────────
 
-function ArrowIcon() {
+function Arrow() {
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M1 13L13 1M13 1H4M13 1V10" />
+    <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor"
+      strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M2.5 9.5l7-7M4 2.5h5.5V8" />
     </svg>
   );
 }
 
-function LinkButton({ href, children, variant = "default" }) {
-  const base = {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "5px",
-    fontSize: "13px",
-    fontFamily: FONT,
-    fontWeight: 500,
-    textDecoration: "none",
-    padding: "6px 12px",
-    borderRadius: "6px",
-    transition: "all 0.15s ease",
-    border: "1px solid",
-  };
-  const styles =
-    variant === "accent"
-      ? { ...base, color: "#fff", backgroundColor: C.accentSolid, borderColor: C.accentSolid }
-      : { ...base, color: C.accent, backgroundColor: "transparent", borderColor: C.border };
-
+function ExtLink({ href, children, className = "text-link" }) {
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" style={styles}>
-      {children} <ArrowIcon />
+    <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+      {children} <Arrow />
     </a>
   );
 }
 
-const NAV_SECTIONS = ["Projects", "Experience", "Publications", "Interests", "Contact"];
-
-function NavBar() {
-  const [open, setOpen] = useState(false);
-  return (
-    <nav style={{
-      position: "sticky", top: 0, zIndex: 50,
-      backgroundColor: C.navBg, backdropFilter: "blur(12px)",
-      borderBottom: `1px solid ${C.border}`, padding: "0 24px",
-    }}>
-      <div style={{
-        maxWidth: SECTION_MAX, margin: "0 auto",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-        height: 56,
-      }}>
-        <a href="#top" style={{
-          fontFamily: FONT, fontWeight: 700, fontSize: 18,
-          color: C.ink, textDecoration: "none", letterSpacing: "-0.02em",
-        }}>
-          {PROFILE.name.split(" ")[0].toLowerCase()}<span style={{ color: C.accent }}>.</span>
-        </a>
-
-        {/* Desktop nav */}
-        <div style={{ display: "flex", gap: 28, alignItems: "center" }}
-             className="nav-links-desktop">
-          {NAV_SECTIONS.map((s) => (
-            <a key={s} href={`#${s.toLowerCase()}`} style={{
-              fontSize: 14, color: C.muted, textDecoration: "none",
-              fontFamily: FONT, fontWeight: 500,
-            }}>{s}</a>
-          ))}
-          <a href={PROFILE.links.resume} target="_blank" rel="noopener noreferrer" style={{
-            fontSize: 13, color: "#fff", backgroundColor: C.accentSolid,
-            padding: "6px 14px", borderRadius: 6, textDecoration: "none",
-            fontFamily: FONT, fontWeight: 600,
-          }}>Resume ↓</a>
-        </div>
-
-        {/* Mobile hamburger */}
-        <button onClick={() => setOpen(!open)} className="nav-hamburger" style={{
-          display: "none", background: "none", border: "none", cursor: "pointer",
-          padding: 4, color: C.ink,
-        }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            {open ? <><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></> :
-              <><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></>}
-          </svg>
-        </button>
-      </div>
-
-      {/* Mobile dropdown */}
-      {open && (
-        <div className="nav-mobile-menu" style={{
-          display: "none", flexDirection: "column", gap: 16,
-          padding: "16px 0 20px", borderTop: `1px solid ${C.border}`,
-        }}>
-          {NAV_SECTIONS.map((s) => (
-            <a key={s} href={`#${s.toLowerCase()}`} onClick={() => setOpen(false)} style={{
-              fontSize: 15, color: C.ink, textDecoration: "none",
-              fontFamily: FONT, fontWeight: 500,
-            }}>{s}</a>
-          ))}
-          <a href={PROFILE.links.resume} target="_blank" rel="noopener noreferrer" style={{
-            fontSize: 14, color: C.accent, textDecoration: "none",
-            fontFamily: FONT, fontWeight: 600,
-          }}>Download Resume ↓</a>
-        </div>
-      )}
-    </nav>
+// Renders **bold** segments from a plain string.
+function Rich({ text }) {
+  return text.split(/\*\*(.+?)\*\*/g).map((part, i) =>
+    i % 2 ? <strong key={i}>{part}</strong> : part
   );
 }
 
-// Shared style for justified body copy.
-const bodyProse = {
-  fontFamily: FONT,
-  textAlign: "justify",
-  hyphens: "auto",
-  WebkitHyphens: "auto",
-};
+function CopyEmail() {
+  const [copied, setCopied] = useState(false);
+  const timer = useRef();
 
-function SectionHeading({ children, sub }) {
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(PROFILE.email);
+      setCopied(true);
+      clearTimeout(timer.current);
+      timer.current = setTimeout(() => setCopied(false), 1800);
+    } catch {
+      window.location.href = `mailto:${PROFILE.email}`;
+    }
+  }
+
+  return (
+    <button type="button" className="copy" data-copied={copied} onClick={copy}
+      aria-label="Copy email address">
+      <svg className="icon-copy" width="15" height="15" viewBox="0 0 16 16" fill="none"
+        stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+        <rect x="5.5" y="5.5" width="8" height="8" rx="2" />
+        <path d="M10.5 3.5v-.5a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5" />
+      </svg>
+      <svg className="icon-done" width="15" height="15" viewBox="0 0 16 16" fill="none"
+        stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+        aria-hidden="true">
+        <path d="M3.5 8.5l3 3 6-7" />
+      </svg>
+      <span className="sr-only" aria-live="polite">{copied ? "Email copied" : ""}</span>
+    </button>
+  );
+}
+
+function Tags({ tags }) {
+  return (
+    <span className="stack mono">
+      {tags.map((t, i) => (
+        <Fragment key={t}>{i > 0 && " · "}<span className="tag">{t}</span></Fragment>
+      ))}
+    </span>
+  );
+}
+
+function SectionHead({ index, label, title, sub }) {
   return (
     <>
-      <h2 style={{
-        fontFamily: FONT, fontWeight: 700,
-        fontSize: 25, color: C.ink, letterSpacing: "-0.02em",
-        margin: sub ? "0 0 8px" : "0 0 28px",
-      }}>{children}</h2>
-      {sub && (
-        <p style={{
-          fontFamily: FONT, fontSize: 14,
-          color: C.muted, margin: "0 0 28px",
-        }}>{sub}</p>
-      )}
+      <div className="sec-rule mono reveal">
+        <span>{index}</span>
+        <span>{label}</span>
+      </div>
+      <h2 className="sec-title reveal">
+        {title} {sub && <span className="dim">{sub}</span>}
+      </h2>
     </>
   );
 }
 
+// ──────────────────────────────────────────────
+// SECTIONS
+// ──────────────────────────────────────────────
+
+function Nav({ tone }) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  return (
+    <header className="nav" data-tone={tone} data-menu={open ? "open" : "closed"}>
+      <div className="container nav-inner">
+        <a href="#top" className="nav-name" onClick={() => setOpen(false)}>{PROFILE.name}</a>
+
+        <nav className="nav-links" aria-label="Sections">
+          {NAV.map((s) => <a key={s.id} href={`#${s.id}`}>{s.label}</a>)}
+          <a href={PROFILE.links.resume} target="_blank" rel="noopener noreferrer"
+            className="btn btn-accent nav-cta">Résumé</a>
+        </nav>
+
+        <button type="button" className="nav-toggle" aria-expanded={open}
+          aria-controls="nav-sheet" aria-label={open ? "Close menu" : "Open menu"}
+          onClick={() => setOpen((o) => !o)}>
+          <span /><span />
+        </button>
+      </div>
+
+      <nav id="nav-sheet" className="nav-sheet" data-open={open} aria-label="Sections"
+        inert={open ? undefined : ""}>
+        {NAV.map((s) => (
+          <a key={s.id} href={`#${s.id}`} onClick={() => setOpen(false)}>{s.label}</a>
+        ))}
+        <a href={PROFILE.links.resume} target="_blank" rel="noopener noreferrer"
+          onClick={() => setOpen(false)}>Résumé</a>
+      </nav>
+    </header>
+  );
+}
+
 function Hero() {
+  const [white, grey] = PROFILE.headline;
   return (
-    <section id="top" style={{
-      maxWidth: SECTION_MAX, margin: "0 auto", padding: "80px 24px 48px",
-    }}>
-      <div style={{
-        display: "inline-block", fontSize: 12, fontWeight: 600,
-        fontFamily: FONT, color: C.badgeText,
-        backgroundColor: C.badgeBg, padding: "4px 10px", borderRadius: 4,
-        letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 20,
-      }}>
-        Open to work · Available immediately
-      </div>
-      <h1 style={{
-        fontFamily: FONT, fontWeight: 700,
-        fontSize: "clamp(32px, 5vw, 52px)", lineHeight: 1.1,
-        color: C.ink, letterSpacing: "-0.03em", margin: "0 0 12px",
-      }}>
-        {PROFILE.name}
-      </h1>
-      <p style={{
-        fontFamily: FONT, fontWeight: 500,
-        fontSize: "clamp(18px, 2.5vw, 23px)", color: C.muted,
-        margin: "0 0 20px", letterSpacing: "-0.01em",
-      }}>
-        {PROFILE.title}
-      </p>
-      <p style={{
-        ...bodyProse, fontSize: 16.5,
-        lineHeight: 1.7, color: C.body, maxWidth: 760, margin: "0 0 32px",
-      }}>
-        {PROFILE.tagline}
-      </p>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <LinkButton href="#contact" variant="accent">Get in touch</LinkButton>
-        <LinkButton href={PROFILE.links.linkedin}>LinkedIn</LinkButton>
-        <LinkButton href={PROFILE.links.resume}>Resume (PDF)</LinkButton>
-      </div>
-    </section>
-  );
-}
+    <section id="top" className="hero">
+      <div className="hero-glow" aria-hidden="true" />
 
-function About() {
-  return (
-    <section id="about" style={{
-      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 48px",
-    }}>
-      {ABOUT.map((para, i) => (
-        <p key={i} style={{
-          ...bodyProse, fontSize: 15.5,
-          lineHeight: 1.75, color: C.body, maxWidth: 900,
-          margin: i === ABOUT.length - 1 ? 0 : "0 0 14px",
-        }}>{para}</p>
-      ))}
-    </section>
-  );
-}
+      <div className="container hero-top mono" data-enter style={{ "--d": 0 }}>
+        {PROFILE.labels.map((l) => <span key={l}>[ {l} ]</span>)}
+      </div>
 
-function Skills() {
-  return (
-    <section style={{
-      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 56px",
-    }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-        {Object.entries(SKILLS).map(([group, items]) => (
-          <div key={group}>
-            <p style={{
-              fontFamily: FONT, fontSize: 12,
-              fontWeight: 600, color: C.muted, letterSpacing: "0.06em",
-              textTransform: "uppercase", margin: "0 0 10px",
-            }}>{group}</p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {items.map((s) => (
-                <span key={s} style={{
-                  fontSize: 13, fontFamily: FONT,
-                  fontWeight: 500, color: C.chipText, backgroundColor: C.chipBg,
-                  padding: "5px 12px", borderRadius: 5,
-                }}>{s}</span>
-              ))}
-            </div>
+      <div className="container hero-main">
+        <h1 className="hero-title">
+          <span className="hero-kicker" data-enter style={{ "--d": 1 }}>
+            Hi, I'm {PROFILE.name}.
+          </span>
+          <span data-enter style={{ "--d": 2, display: "block" }}>
+            {white} <span className="dim">{grey}</span>
+          </span>
+        </h1>
+
+        <div className="hero-side" data-enter style={{ "--d": 4 }}>
+          <p className="hero-intro"><Rich text={INTRO} /></p>
+          <div className="hero-actions">
+            <a href="#contact" className="btn btn-light">Get in touch</a>
+            <ExtLink href={PROFILE.links.linkedin}>LinkedIn</ExtLink>
           </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function ProjectCard({ project }) {
-  return (
-    <div className="card" style={{
-      backgroundColor: C.surface, border: `1px solid ${C.border}`,
-      borderRadius: 10, padding: 24,
-      display: "flex", flexDirection: "column", gap: 14,
-    }}>
-      <h3 style={{
-        fontFamily: FONT, fontWeight: 600,
-        fontSize: 17, color: C.ink, margin: 0, letterSpacing: "-0.01em",
-      }}>{project.title}</h3>
-      <p style={{
-        ...bodyProse, fontSize: 14,
-        lineHeight: 1.65, color: C.body, margin: 0, flex: 1,
-      }}>{project.description}</p>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {project.tags.map((t, i) => (
-          <span key={`${t}-${i}`} style={{
-            fontSize: 11, fontFamily: FONT,
-            fontWeight: 600, color: C.tagText, backgroundColor: C.tagBg,
-            padding: "3px 8px", borderRadius: 4, letterSpacing: "0.02em",
-          }}>{t}</span>
-        ))}
-      </div>
-      <div style={{
-        display: "flex", gap: 8, flexWrap: "wrap",
-        paddingTop: 6, borderTop: `1px solid ${C.borderSoft}`,
-      }}>
-        {project.github && <LinkButton href={project.github}>Code</LinkButton>}
-        {project.live && <LinkButton href={project.live}>Live Demo</LinkButton>}
-        {project.report && <LinkButton href={project.report}>Report (PDF)</LinkButton>}
-      </div>
-    </div>
-  );
-}
-
-function ProjectGrid({ projects }) {
-  return (
-    <div style={{
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))",
-      gap: 18,
-    }}>
-      {projects.map((p) => <ProjectCard key={p.title} project={p} />)}
-    </div>
-  );
-}
-
-function SubLabel({ children, style }) {
-  return (
-    <p style={{
-      fontFamily: FONT, fontSize: 13,
-      fontWeight: 600, color: C.muted, letterSpacing: "0.05em",
-      textTransform: "uppercase", margin: "0 0 16px", ...style,
-    }}>{children}</p>
-  );
-}
-
-function Projects() {
-  return (
-    <section id="projects" style={{
-      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 64px",
-    }}>
-      <SectionHeading sub="Selected work — click through for detailed PDF reports.">
-        Projects
-      </SectionHeading>
-
-      <SubLabel>Research & Featured Work</SubLabel>
-      <ProjectGrid projects={FEATURED_PROJECTS} />
-
-      <SubLabel style={{ margin: "36px 0 16px" }}>Side Projects</SubLabel>
-      <ProjectGrid projects={SIDE_PROJECTS} />
-    </section>
-  );
-}
-
-function TimelineList({ items }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-      {items.map((item, i) => (
-        <div key={i} className="timeline-row" style={{
-          display: "flex", gap: 24, padding: "24px 0",
-          borderTop: `1px solid ${C.borderSoft}`,
-        }}>
-          <div style={{
-            fontFamily: FONT, fontSize: 13,
-            fontWeight: 500, color: C.muted, width: 150, flexShrink: 0,
-            paddingTop: 2,
-          }}>{item.period}</div>
-          <div style={{ minWidth: 0 }}>
-            <h3 style={{
-              fontFamily: FONT, fontWeight: 600,
-              fontSize: 16, color: C.ink, margin: "0 0 2px",
-            }}>{item.title}</h3>
-            <p style={{
-              fontFamily: FONT, fontSize: 14,
-              fontWeight: 500, color: C.accent, margin: "0 0 8px",
-            }}>{item.subtitle}</p>
-            <p style={{
-              ...bodyProse, fontSize: 14,
-              lineHeight: 1.65, color: C.body, margin: 0,
-            }}>{item.detail}</p>
+          <div className="hero-email">
+            <a href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a>
+            <CopyEmail />
           </div>
         </div>
+      </div>
+
+      <div className="container" data-enter style={{ "--d": 6 }}>
+        <div className="hero-strip mono">
+          <span className="live">Available now</span>
+          <span className="now"><b>{PROFILE.now.lead}</b> {PROFILE.now.text}</span>
+          <a href="#work" className="scroll-cue">Scroll ↓</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProjectCard({ p, i }) {
+  return (
+    <article className="card project reveal" style={{ "--i": i % 2 }}>
+      <div className="project-meta mono">
+        <span>{String(i + 1).padStart(2, "0")} · {p.area}</span>
+        <span>{p.status}</span>
+      </div>
+      <h3>{p.title}</h3>
+      <p className="project-body"><strong>{p.hook}</strong> {p.body}</p>
+      {p.stat && (
+        <p className="project-stat"><b>{p.stat.value}</b>{p.stat.label}</p>
+      )}
+      <div className="project-foot">
+        <Tags tags={p.tags} />
+        {p.report && <ExtLink href={p.report}>Read the report</ExtLink>}
+      </div>
+    </article>
+  );
+}
+
+function Work() {
+  return (
+    <section id="work" className="section container">
+      <SectionHead index="01" label="Work" title="Selected work."
+        sub="Research and side projects, most with a full write-up." />
+
+      <div className="project-grid">
+        {FEATURED_PROJECTS.map((p, i) => <ProjectCard key={p.title} p={p} i={i} />)}
+      </div>
+
+      <p className="sub-label mono reveal">Smaller projects</p>
+      <div className="mini-list">
+        {SIDE_PROJECTS.map((p) => (
+          <article key={p.title} className="mini reveal">
+            <div>
+              <h3>{p.title}</h3>
+              <Tags tags={p.tags} />
+            </div>
+            <p><strong>{p.hook}</strong> {p.body}</p>
+            <div className="mini-aside">
+              <span className="figure">{p.figure}</span>
+              {p.report && <ExtLink href={p.report}>Report</ExtLink>}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Rows({ items }) {
+  return (
+    <div className="rows">
+      {items.map((it) => (
+        <article key={it.title + it.when} className="row reveal">
+          <div className="row-when mono">{it.when}</div>
+          <div>
+            <h3>{it.title}</h3>
+            <p className="row-org">{it.org}</p>
+            <p className="row-detail">{it.detail}</p>
+            {it.link && <ExtLink href={it.link.href}>{it.link.label}</ExtLink>}
+          </div>
+        </article>
       ))}
     </div>
   );
 }
 
 function Experience() {
-  const items = EXPERIENCE.map((e) => ({
-    period: e.period, title: e.role, subtitle: e.company, detail: e.description,
-  }));
   return (
-    <section id="experience" style={{
-      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 64px",
-    }}>
-      <SectionHeading>Experience</SectionHeading>
-      <TimelineList items={items} />
+    <section id="experience" className="section container">
+      <SectionHead index="02" label="Experience" title="Experience."
+        sub="Two research labs, a defence research institute and a racing team." />
+      <Rows items={EXPERIENCE.map((e) => ({
+        when: e.period, title: e.role, org: e.company, detail: e.description,
+      }))} />
     </section>
   );
 }
 
-function Education() {
-  const items = EDUCATION.map((e) => ({
-    period: e.period, title: e.degree, subtitle: e.school, detail: e.detail,
-  }));
+function Toolkit() {
   return (
-    <section id="education" style={{
-      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 64px",
-    }}>
-      <SectionHeading>Education</SectionHeading>
-      <TimelineList items={items} />
-    </section>
-  );
-}
-
-function Publications() {
-  return (
-    <section id="publications" style={{
-      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 64px",
-    }}>
-      <SectionHeading>Publications</SectionHeading>
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {PUBLICATIONS.map((pub) => (
-          <div key={pub.title} className="card" style={{
-            backgroundColor: C.surface, border: `1px solid ${C.border}`,
-            borderRadius: 10, padding: 24,
-            display: "flex", flexDirection: "column", gap: 10,
-          }}>
-            <h3 style={{
-              fontFamily: FONT, fontWeight: 600,
-              fontSize: 16, color: C.ink, margin: 0, letterSpacing: "-0.01em",
-            }}>{pub.title}</h3>
-            <p style={{
-              fontFamily: FONT, fontSize: 13,
-              color: C.muted, margin: 0, lineHeight: 1.5,
-            }}>{pub.venue}</p>
-            <p style={{
-              ...bodyProse, fontSize: 14,
-              lineHeight: 1.65, color: C.body, margin: 0,
-            }}>{pub.contribution}</p>
-            <div>
-              <LinkButton href={pub.doi}>View paper (DOI)</LinkButton>
-            </div>
+    <section id="toolkit" className="section container">
+      <SectionHead index="03" label="Toolkit" title="What I work with." />
+      <div className="toolkit">
+        {Object.entries(SKILLS).map(([group, items], i) => (
+          <div key={group} className="reveal" style={{ "--i": i }}>
+            <h3 className="mono">{group}</h3>
+            <ul>{items.map((s) => <li key={s}>{s}</li>)}</ul>
           </div>
         ))}
       </div>
@@ -627,44 +471,46 @@ function Publications() {
   );
 }
 
-function Interests() {
+function Publications() {
   return (
-    <section id="interests" style={{
-      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 64px",
-    }}>
-      <SectionHeading sub="What I'm upto when I'm not coding, reading papers, or writing reports.">
-        Life Outside Tech
-      </SectionHeading>
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {INTERESTS.map((item) => (
-          <div key={item.title} className="card interest-row" style={{
-            backgroundColor: C.surface, border: `1px solid ${C.border}`,
-            borderRadius: 10, padding: "22px 24px",
-            display: "flex", flexDirection: "row", alignItems: "flex-start", gap: 20,
-          }}>
-            <span style={{
-              fontSize: 32, lineHeight: 1, flexShrink: 0,
-              width: 44, textAlign: "center",
-            }}>{item.emoji}</span>
-            <div>
-              <h3 style={{
-                fontFamily: FONT, fontWeight: 600,
-                fontSize: 16, color: C.ink, margin: "0 0 6px",
-              }}>{item.title}</h3>
-              <p style={{
-                fontFamily: FONT, fontSize: 14,
-                lineHeight: 1.65, color: C.body, margin: 0,
-              }}>
-                {item.text}
-                {item.link && (
-                  <a href={item.link.href} target="_blank" rel="noopener noreferrer"
-                    style={{ color: C.accent, fontWeight: 600, textDecoration: "none" }}>
-                    {item.link.label}
-                  </a>
-                )}
-              </p>
-            </div>
-          </div>
+    <section id="publications" className="section container">
+      <SectionHead index="04" label="Publications" title="Publications."
+        sub="Two IEEE conference papers on chest X-ray classification." />
+      <Rows items={PUBLICATIONS.map((p) => ({
+        when: p.venue.split(" · ")[0], title: p.title, org: p.venue.split(" · ")[1],
+        detail: p.contribution, link: { href: p.doi, label: "Read the paper" },
+      }))} />
+    </section>
+  );
+}
+
+function Education() {
+  return (
+    <section id="education" className="section container">
+      <SectionHead index="05" label="Education" title="Education." />
+      <Rows items={EDUCATION.map((e) => ({
+        when: e.period, title: e.degree, org: e.school, detail: e.detail,
+      }))} />
+    </section>
+  );
+}
+
+function Outside() {
+  return (
+    <section id="outside" className="section container">
+      <SectionHead index="06" label="Outside work" title="Life outside tech."
+        sub="What I'm up to when I'm not training models or reading papers." />
+      <div className="life-grid">
+        {INTERESTS.map((it, i) => (
+          <article key={it.title} className="card life reveal" style={{ "--i": i % 2 }}>
+            <h3>{it.title}</h3>
+            <p>
+              {it.text}
+              {it.link && (
+                <a href={it.link.href} target="_blank" rel="noopener noreferrer">{it.link.label}</a>
+              )}
+            </p>
+          </article>
         ))}
       </div>
     </section>
@@ -677,13 +523,12 @@ function ContactForm() {
   async function handleSubmit(e) {
     e.preventDefault();
     const form = e.target;
-    const data = new FormData(form);
     setStatus("sending");
     try {
       const res = await fetch("/", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams(data).toString(),
+        body: new URLSearchParams(new FormData(form)).toString(),
       });
       if (!res.ok) throw new Error(`Form submit failed: ${res.status}`);
       setStatus("sent");
@@ -693,142 +538,84 @@ function ContactForm() {
     }
   }
 
-  const inputStyle = {
-    width: "100%",
-    backgroundColor: "#2B3D4F",
-    border: `1px solid ${C.darkBorder}`,
-    borderRadius: 7,
-    padding: "10px 14px",
-    color: "#EAF1F8",
-    fontSize: 14,
-    fontFamily: FONT,
-    outline: "none",
-  };
-
-  const labelStyle = {
-    display: "block",
-    fontSize: 13,
-    fontWeight: 500,
-    fontFamily: FONT,
-    color: "#A9C0D6",
-    marginBottom: 6,
-    textAlign: "left",
-  };
-
   if (status === "sent") {
     return (
-      <p style={{
-        fontFamily: FONT, fontSize: 15, color: "#BDDDFC",
-        margin: "0 0 8px", lineHeight: 1.6,
-      }}>
-        Thanks — your message is on its way. I'll get back to you soon.
-      </p>
+      <div className="form-done" role="status">
+        <strong>Thanks, message received.</strong>
+        I'll get back to you soon, usually within a day or two.
+      </div>
     );
   }
 
   return (
-    <form
-      name="contact"
-      method="POST"
-      data-netlify="true"
-      netlify-honeypot="bot-field"
-      onSubmit={handleSubmit}
-      style={{ maxWidth: 480, margin: "0 auto", textAlign: "left" }}
-    >
+    <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field"
+      onSubmit={handleSubmit}>
       <input type="hidden" name="form-name" value="contact" />
-      <p style={{ display: "none" }}>
+      <p hidden>
         <label>Don't fill this out: <input name="bot-field" /></label>
       </p>
-      <div style={{ marginBottom: 14 }}>
-        <label htmlFor="contact-name" style={labelStyle}>Name</label>
-        <input id="contact-name" type="text" name="name" required style={inputStyle} />
+      <label className="field">
+        <span className="mono">Name</span>
+        <input type="text" name="name" autoComplete="name" required />
+      </label>
+      <label className="field">
+        <span className="mono">Email</span>
+        <input type="email" name="email" autoComplete="email" required />
+      </label>
+      <label className="field">
+        <span className="mono">Message</span>
+        <textarea name="message" rows={5} required />
+      </label>
+      <div className="form-row">
+        <button type="submit" className="btn btn-light" disabled={status === "sending"}>
+          {status === "sending" ? "Sending…" : "Send message"}
+        </button>
+        {status === "error" && (
+          <p className="form-note" data-kind="error" role="alert">
+            That didn't go through. Please email me directly instead.
+          </p>
+        )}
       </div>
-      <div style={{ marginBottom: 14 }}>
-        <label htmlFor="contact-email" style={labelStyle}>Email</label>
-        <input id="contact-email" type="email" name="email" required style={inputStyle} />
-      </div>
-      <div style={{ marginBottom: 18 }}>
-        <label htmlFor="contact-message" style={labelStyle}>Message</label>
-        <textarea id="contact-message" name="message" required rows={4} style={{ ...inputStyle, resize: "vertical" }} />
-      </div>
-      {status === "error" && (
-        <p style={{
-          fontFamily: FONT, fontSize: 13, color: "#F5B7B7",
-          margin: "0 0 12px",
-        }}>
-          Something went wrong — please email me directly instead.
-        </p>
-      )}
-      <button type="submit" disabled={status === "sending"} style={{
-        display: "inline-flex", alignItems: "center", gap: 6,
-        fontSize: 14, fontFamily: FONT, fontWeight: 600,
-        color: C.ink, backgroundColor: "#fff", padding: "10px 24px",
-        borderRadius: 7, border: "none", cursor: "pointer",
-        opacity: status === "sending" ? 0.7 : 1,
-      }}>
-        {status === "sending" ? "Sending…" : "Send message"}
-      </button>
     </form>
   );
 }
 
 function Contact() {
   return (
-    <section id="contact" style={{
-      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 80px",
-    }}>
-      <div style={{
-        backgroundColor: C.darkCard, borderRadius: 12, padding: "48px 32px",
-        textAlign: "center",
-      }}>
-        <h2 style={{
-          fontFamily: FONT, fontWeight: 700,
-          fontSize: 25, color: "#fff", letterSpacing: "-0.02em",
-          margin: "0 0 10px",
-        }}>Let's work together</h2>
-        <p style={{
-          fontFamily: FONT, fontSize: 15,
-          color: "#C2D2E2", margin: "0 0 28px", lineHeight: 1.6,
-        }}>
-          I'm actively looking for my next role. Drop a message below, or reach me directly by email or LinkedIn.
-        </p>
-        <ContactForm />
-        <div style={{
-          display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap",
-          marginTop: 28, paddingTop: 24, borderTop: `1px solid ${C.darkBorder}`,
-        }}>
-          <a href={`mailto:${PROFILE.email}`} style={{
-            display: "inline-flex", alignItems: "center", gap: 6,
-            fontSize: 14, fontFamily: FONT, fontWeight: 600,
-            color: C.ink, backgroundColor: "#fff", padding: "10px 20px",
-            borderRadius: 7, textDecoration: "none",
-          }}>{PROFILE.email}</a>
-          <a href={PROFILE.links.linkedin} target="_blank" rel="noopener noreferrer" style={{
-            display: "inline-flex", alignItems: "center", gap: 6,
-            fontSize: 14, fontFamily: FONT, fontWeight: 500,
-            color: "#D3E0EC", backgroundColor: "transparent",
-            border: `1px solid ${C.darkBorder}`, padding: "10px 20px",
-            borderRadius: 7, textDecoration: "none",
-          }}>LinkedIn <ArrowIcon /></a>
+    <section id="contact" className="contact">
+      <div className="container">
+        <SectionHead index="07" label="Contact" title="Let's talk."
+          sub="I'm looking for ML engineering roles and can start right away." />
+        <div className="contact-grid">
+          <div className="contact-direct reveal">
+            <p>
+              Send a note through the form, or reach me directly. I'm happy to relocate
+              for the right role.
+            </p>
+            <div className="contact-links">
+              <div>
+                <a href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a>
+                <CopyEmail />
+              </div>
+              <a href={PROFILE.links.linkedin} target="_blank" rel="noopener noreferrer">
+                LinkedIn <span className="mono">↗</span>
+              </a>
+              <a href={PROFILE.links.resume} target="_blank" rel="noopener noreferrer">
+                Résumé <span className="mono">PDF ↗</span>
+              </a>
+            </div>
+          </div>
+          <div className="reveal" style={{ "--i": 1 }}>
+            <ContactForm />
+          </div>
         </div>
+
+        <footer className="footer mono">
+          <span>{PROFILE.name} · {new Date().getFullYear()}</span>
+          <a href="#top">Back to top ↑</a>
+        </footer>
       </div>
     </section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer style={{
-      maxWidth: SECTION_MAX, margin: "0 auto", padding: "0 24px 40px",
-      textAlign: "center",
-    }}>
-      <p style={{
-        fontFamily: FONT, fontSize: 12,
-        color: C.muted,
-      }}>
-        Varun Amitabh · {new Date().getFullYear()}
-      </p>
-    </footer>
   );
 }
 
@@ -837,61 +624,70 @@ function Footer() {
 // ──────────────────────────────────────────────
 
 export default function Portfolio() {
+  const [navTone, setNavTone] = useState("dark");
+
+  // The nav uses its dark material while a dark section (hero, contact) sits
+  // under it, and its light material everywhere else. The observer's root is
+  // trimmed to just the nav's strip at the top of the viewport.
+  useEffect(() => {
+    if (!("IntersectionObserver" in window)) return;
+    const dark = new Set();
+    let io;
+    const watch = () => {
+      io?.disconnect();
+      const navH = 52;
+      io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => (e.isIntersecting ? dark.add(e.target) : dark.delete(e.target)));
+          setNavTone(dark.size ? "dark" : "light");
+        },
+        { rootMargin: `0px 0px ${navH - window.innerHeight}px 0px`, threshold: 0 }
+      );
+      document.querySelectorAll(".hero, .contact").forEach((el) => io.observe(el));
+    };
+    watch();
+    window.addEventListener("resize", watch);
+    return () => {
+      io?.disconnect();
+      window.removeEventListener("resize", watch);
+    };
+  }, []);
+
+  // Each .reveal block fades up once when it scrolls into view.
+  useEffect(() => {
+    const els = document.querySelectorAll(".reveal");
+    if (!("IntersectionObserver" in window)) {
+      els.forEach((el) => el.classList.add("is-in"));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("is-in");
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.1 }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   return (
     <>
-      <style>{`
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body {
-          background: ${C.bg};
-          font-family: ${FONT};
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-        a { transition: opacity 0.15s ease; }
-        a:hover { opacity: 0.82; }
-
-        /* Apple-style floating cards: rest with a soft shadow, lift on hover */
-        .card {
-          box-shadow: 0 1px 3px rgba(38, 51, 61, 0.05);
-          transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-                      box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-          will-change: transform;
-        }
-        .card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 14px 30px rgba(38, 51, 61, 0.13);
-        }
-
-        /* Responsive rules */
-        @media (max-width: 640px) {
-          .nav-links-desktop { display: none !important; }
-          .nav-hamburger { display: block !important; }
-          .nav-mobile-menu { display: flex !important; }
-          .timeline-row { flex-direction: column; gap: 6px !important; }
-          /* left-align justified prose on narrow screens to avoid big word gaps */
-          .timeline-row p, #about p, #top p, #projects p, #publications p { text-align: left !important; }
-        }
-        @media (min-width: 641px) {
-          .nav-links-desktop { display: flex !important; }
-          .nav-hamburger { display: none !important; }
-          .nav-mobile-menu { display: none !important; }
-        }
-      `}</style>
-      <NavBar />
+      <Nav tone={navTone} />
       <main>
         <Hero />
-        <About />
-        <Skills />
-        <Projects />
+        <Work />
         <Experience />
-        <Education />
+        <Toolkit />
         <Publications />
-        <Interests />
+        <Education />
+        <Outside />
         <Contact />
       </main>
-      <Footer />
     </>
   );
 }

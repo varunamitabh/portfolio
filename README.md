@@ -20,8 +20,10 @@ Netlify — locally the submit will hit the error state.
 2. Put project report PDFs in `public/reports/` — see
    `public/reports/README.md` for the expected filenames.
 3. All site content lives in the constant blocks at the top of
-   `src/Portfolio.jsx` (`PROFILE`, `ABOUT`, `PROJECTS`, `EXPERIENCE`,
-   `EDUCATION`, `PUBLICATIONS`, `SKILLS`) — edit there.
+   `src/Portfolio.jsx` (`PROFILE`, `INTRO`, `FEATURED_PROJECTS`,
+   `SIDE_PROJECTS`, `EXPERIENCE`, `SKILLS`, `PUBLICATIONS`, `EDUCATION`,
+   `INTERESTS`). Colours, type and motion live as tokens at the top of
+   `src/styles.css`.
 
 ## Deploy to Netlify
 
