@@ -163,7 +163,7 @@ const EDUCATION = [
       "Coursework: Machine Learning, Pattern Recognition, NLP, Image Processing & Computer Vision, Information Theory in ML, Deep Learning in Medical Image Analysis.",
   },
   {
-    school: "Symbiosis Institute of Technology, Pune",
+    school: "Symbiosis International University",
     degree: "B.Tech Electronics & Telecommunications",
     period: "2020 – 2024",
     detail:
