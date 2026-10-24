@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import HeroCanvas from "./HeroCanvas.jsx";
 import "./styles.css";
 
@@ -267,7 +267,7 @@ function Tags({ tags }) {
   return (
     <span className="stack mono">
       {tags.map((t, i) => (
-        <span key={t} className="tag">{i > 0 && " · "}{t}</span>
+        <Fragment key={t}>{i > 0 && " · "}<span className="tag">{t}</span></Fragment>
       ))}
     </span>
   );

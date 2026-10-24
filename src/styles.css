@@ -579,7 +579,7 @@ button {
 
 @media (max-width: 860px) {
   .hero-main {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     align-content: end;
     padding-top: 48px;
   }
@@ -654,9 +654,14 @@ button {
 
 .project-meta {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 12px;
+  gap: 4px 12px;
   color: var(--ink-3);
+}
+
+.project-meta span {
+  white-space: nowrap;
 }
 
 .project h3 {
@@ -708,6 +713,17 @@ button {
 
 .stack .tag {
   white-space: nowrap;
+}
+
+/* Backstop: a single long word or address never pushes the page sideways. */
+.project-body,
+.mini p,
+.row-detail,
+.life p,
+.hero-intro,
+.hero-strip,
+.contact-links a {
+  overflow-wrap: anywhere;
 }
 
 .stack {
@@ -769,10 +785,10 @@ button {
 
 @media (max-width: 860px) {
   .project-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .mini {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .mini-aside {
     flex-direction: row;
@@ -829,7 +845,7 @@ button {
 
 @media (max-width: 700px) {
   .row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .row-when {
     padding-top: 0;
@@ -898,7 +914,7 @@ button {
 
 @media (max-width: 760px) {
   .life-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -1064,7 +1080,7 @@ button {
 
 @media (max-width: 860px) {
   .contact-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
